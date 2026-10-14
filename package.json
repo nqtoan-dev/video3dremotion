@@ -1,0 +1,11 @@
+{
+  "name": "video3dremotion-monorepo",
+  "private": true,
+  "version": "3.0.0",
+  "description": "High-Speed AI Director & 3D Cinematic Video-by-Code Studio (DCI 2K 2048x1080 @ 24fps)",
+  "scripts": {
+    "studio:web": "uvicorn backend.main:app --reload --port 8000",
+    "studio:remotion": "cd renderer && npx remotion studio src/index.ts",
+    "render:dci2k": "cd renderer && npx remotion render src/index.ts Video3DRemotionCinema ../out/remotion_raw_2048x1080.mp4 --concurrency=3 --gl=angle"
+  }
+}

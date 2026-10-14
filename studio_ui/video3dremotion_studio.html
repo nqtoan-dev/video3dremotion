@@ -1,0 +1,1157 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>video3dremotion Studio — Tạo Phim Điện Ảnh DCI 2K Tự Động</title>
+  <style>
+    :root {
+      --bg-main: #090b10;
+      --bg-surface: #11151f;
+      --bg-elevated: #181e2c;
+      --bg-glass: rgba(24, 30, 44, 0.78);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: #f59e0b;
+      --primary: #f59e0b;
+      --primary-hover: #fbbf24;
+      --accent: #06b6d4;
+      --success: #10b981;
+      --danger: #ef4444;
+      --text: #f8fafc;
+      --text-secondary: #94a3b8;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 7px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation Bar */
+    .navbar {
+      height: 64px;
+      background: rgba(17, 21, 31, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #000;
+      font-size: 15px;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+    }
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+    }
+    .brand-sub {
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      margin-left: 4px;
+      padding: 2px 8px;
+      background: var(--bg-elevated);
+      border-radius: 99px;
+      border: 1px solid var(--border);
+    }
+
+    /* Stepper Pills in Center of Navbar */
+    .workflow-steps {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-surface);
+      padding: 5px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+    }
+    .wf-step {
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .wf-step.active {
+      background: var(--bg-elevated);
+      color: var(--text);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .wf-step.active .dot { background: var(--primary); }
+    .wf-step.done { color: var(--success); }
+    .wf-step.done .dot { background: var(--success); }
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-secondary);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .credit-pill {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 99px;
+      font-size: 12.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .credit-pill strong { color: var(--primary); }
+
+    /* Buttons */
+    .btn {
+      cursor: pointer;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 9px 16px;
+      font-weight: 600;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: all 0.16s ease;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #090b10;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+    }
+    .btn-primary:hover { transform: translateY(-1px); filter: brightness(1.08); }
+    .btn-accent {
+      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+      color: #fff;
+    }
+    .btn-success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+    }
+    .btn-ghost {
+      background: var(--bg-elevated);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.22); }
+    .btn-sm { padding: 6px 11px; font-size: 12px; }
+
+    /* Main Workspace Layout */
+    .workspace {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 22px;
+      padding: 22px 28px;
+      max-width: 1680px;
+      width: 100%;
+      margin: 0 auto;
+      flex: 1;
+    }
+    @media (max-width: 1120px) {
+      .workspace { grid-template-columns: 1fr; }
+      .workflow-steps { display: none; }
+    }
+
+    /* Left Sidebar: Idea & Essential Settings */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-weight: 600;
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--primary);
+    }
+
+    label.field-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      margin-bottom: 4px;
+      display: block;
+    }
+    textarea.prompt-box {
+      width: 100%;
+      min-height: 104px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      color: var(--text);
+      font-size: 13.5px;
+      line-height: 1.5;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    textarea.prompt-box:focus { border-color: var(--primary); }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    select.clean-select, input.clean-input {
+      width: 100%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      outline: none;
+    }
+    select.clean-select:focus, input.clean-input:focus { border-color: var(--primary); }
+
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      padding-top: 4px;
+    }
+    .toggle-row input[type="checkbox"] {
+      accent-color: var(--primary);
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    /* Right Content Area: Cinema Monitor + Storyboard Cards */
+    .stage-area {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Cinema Preview Player */
+    .player-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .cinema-viewport {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 2048 / 1080;
+      background: #000;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+    }
+    canvas#cinemaCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .viewport-overlay-top {
+      position: absolute;
+      top: 12px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      font-size: 11.5px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      color: rgba(255, 255, 255, 0.75);
+      z-index: 10;
+    }
+    .player-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .timeline-bar {
+      display: flex;
+      flex: 1;
+      height: 8px;
+      background: var(--bg-elevated);
+      border-radius: 99px;
+      overflow: hidden;
+      gap: 3px;
+      cursor: pointer;
+    }
+    .timeline-segment {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.16);
+      transition: background 0.2s;
+    }
+    .timeline-segment.active { background: var(--primary); }
+    .timeline-segment.approved { background: var(--success); }
+
+    /* Shots Grid */
+    .shots-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .shots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 14px;
+    }
+    .shot-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.18s ease;
+      cursor: pointer;
+    }
+    .shot-card:hover { border-color: rgba(255, 255, 255, 0.22); transform: translateY(-2px); }
+    .shot-card.selected { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+    .shot-card.approved { border-color: var(--success); }
+
+    .shot-thumb {
+      height: 118px;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      padding: 10px;
+      background-size: cover;
+      border-bottom: 1px solid var(--border);
+    }
+    .shot-status-tag {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 99px;
+      backdrop-filter: blur(8px);
+    }
+    .tag-free { background: rgba(6, 182, 212, 0.25); color: #7dd3fc; border: 1px solid rgba(6,182,212,0.4); }
+    .tag-veo { background: rgba(245, 158, 11, 0.25); color: #fde68a; border: 1px solid rgba(245,158,11,0.4); }
+    .tag-done { background: rgba(16, 185, 129, 0.25); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.4); }
+
+    .shot-body {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+    .shot-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11.5px;
+      color: var(--text-secondary);
+    }
+    .shot-desc {
+      font-size: 12.5px;
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .shot-narration-input {
+      width: 100%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 8px;
+      color: #cbd5e1;
+      font-size: 12px;
+      font-style: italic;
+    }
+    .shot-footer {
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    /* GitHub & System Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: var(--radius-lg);
+      max-width: 620px;
+      width: 100%;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .status-toast {
+      font-size: 12.5px;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+      max-height: 160px;
+      overflow-y: auto;
+      font-family: ui-monospace, Consolas, monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Thanh Điều Hướng Gọn Đẹp -->
+  <nav class="navbar">
+    <div class="brand">
+      <div class="brand-logo">2K</div>
+      <div>
+        <span class="brand-title">video3dremotion</span>
+        <span class="brand-sub">DCI 2K Cinema Studio</span>
+      </div>
+    </div>
+
+    <div class="workflow-steps">
+      <div class="wf-step active" id="navStep1" onclick="jumpToStep(1)">
+        <span class="dot"></span> 1. Kịch bản & Cài đặt
+      </div>
+      <div class="wf-step" id="navStep2" onclick="jumpToStep(2)">
+        <span class="dot"></span> 2. Duyệt Ảnh (0 Credit)
+      </div>
+      <div class="wf-step" id="navStep3" onclick="jumpToStep(3)">
+        <span class="dot"></span> 3. Duyệt Cảnh Veo 3
+      </div>
+      <div class="wf-step" id="navStep4" onclick="jumpToStep(4)">
+        <span class="dot"></span> 4. Xuất Phim 2K NVENC
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <div class="credit-pill" title="Số dư Google Labs Flow hàng tháng của bạn">
+        ⚡ Flow Credits: <strong id="creditDisplay">1000</strong>
+      </div>
+      <button class="btn btn-success btn-sm" onclick="openGitHubModal()">
+        ☁️ Cập Nhật Lên GitHub
+      </button>
+    </div>
+  </nav>
+
+  <!-- Không Gian Làm Việc Chính (2 Cột Trực Quan) -->
+  <div class="workspace">
+
+    <!-- CỘT TRÁI: Ý Tưởng & Các Cài Đặt Cần Thiết -->
+    <aside class="sidebar">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">✨ 1. Mô Tả Ý Tưởng Video</span>
+          <span class="badge">AI Director</span>
+        </div>
+        <div>
+          <label class="field-label">Nhập nội dung bạn muốn làm phim (Tiếng Việt):</label>
+          <textarea id="promptInput" class="prompt-box" placeholder="Mô tả ý tưởng video của bạn...">Trailer điện ảnh giới thiệu cà phê đặc sản vùng cao nguyên Việt Nam dưới ánh bình minh xuyên qua làn sương mù, góc máy Anamorphic sâu thẳm và chữ 3D sang trọng.</textarea>
+        </div>
+        <button class="btn btn-primary" style="width: 100%;" onclick="generateStoryboardStep()">
+          🎬 Phân Tích & Chia Cảnh Storyboard (0 Credit)
+        </button>
+      </div>
+
+      <!-- Chỉ giữ lại các cài đặt thực sự cần thiết, gọn gàng -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">⚙️ 2. Cài Đặt Điện Ảnh Cần Thiết</span>
+        </div>
+
+        <div class="settings-grid">
+          <div>
+            <label class="field-label">Khung hình chuẩn rạp</label>
+            <select id="aspectSelect" class="clean-select" onchange="updateSettings()">
+              <option value="2.39:1" selected>CinemaScope 2.39:1 (Rạp)</option>
+              <option value="1.90:1">DCI 2K 1.90:1 (Toàn khung)</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Bảng màu phim (3D LUT)</label>
+            <select id="lutSelect" class="clean-select" onchange="updateSettings()">
+              <option value="kodak2383" selected>Kodak 2383 (Ấm cổ điển)</option>
+              <option value="tealorange">Teal & Orange (Bom tấn)</option>
+              <option value="eterna">Fujifilm Eterna (Dịu nhẹ)</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Mô hình sinh cảnh (Flow)</label>
+            <select id="veoTierSelect" class="clean-select">
+              <option value="20" selected>Veo 3 Fast (20 Cr/cảnh)</option>
+              <option value="10">Veo 3.1 Lite (10 Cr/cảnh)</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Hiệu ứng hạt không gian 3D</label>
+            <select id="particleSelect" class="clean-select" onchange="updateSettings()">
+              <option value="warm_dust" selected>Bụi sáng nắng sớm</option>
+              <option value="mist">Sương mù chiều sâu</option>
+              <option value="embers">Tia lửa ấm áp</option>
+              <option value="none">Tắt hạt 3D</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <span>Chuyển âm thanh sớm (J-Cut 0.5s)</span>
+          <input type="checkbox" id="jcutToggle" checked />
+        </div>
+        <div class="toggle-row">
+          <span>Tăng tốc phần cứng Quadro P2000 (NVENC)</span>
+          <input type="checkbox" id="nvencToggle" checked />
+        </div>
+      </div>
+
+      <!-- Khung Bấm Duyệt Chuyển Giai Đoạn Nhanh -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🚀 3. Duyệt & Xuất Phim</span>
+        </div>
+        <button class="btn btn-accent" style="width: 100%;" onclick="approveAllStoryboards()">
+          ✅ Duyệt Ảnh Storyboard ➔ Tạo Clip Veo 3
+        </button>
+        <button class="btn btn-success" style="width: 100%;" onclick="exportFinalMovie()">
+          🎞️ Duyệt Tất Cả Cảnh ➔ Xuất Phim DCI 2K
+        </button>
+        <div class="status-toast" id="quickStatusBox">Sẵn sàng. Mọi thao tác tạo & sửa ảnh Storyboard đều tốn 0 Credit.</div>
+      </div>
+    </aside>
+
+    <!-- CỘT PHẢI: Màn Hình Xem Thử Chuẩn Rạp & Danh Sách Cảnh Quay -->
+    <main class="stage-area">
+      <div class="player-card">
+        <div class="cinema-viewport">
+          <div class="viewport-overlay-top">
+            <span id="hudSpec">DCI 2K (2048×1080) • 24 FPS • SHUTTER 180°</span>
+            <span id="hudShotInfo">CẢNH 01/04 • 24mm ANAMORPHIC f/2.8</span>
+          </div>
+          <canvas id="cinemaCanvas" width="1024" height="540"></canvas>
+        </div>
+
+        <div class="player-controls">
+          <button class="btn btn-primary btn-sm" id="playPauseBtn" onclick="togglePlayback()">
+            ⏸ Tạm Dừng
+          </button>
+          <div class="timeline-bar" id="timelineSegments"></div>
+          <span style="font-size: 12px; color: var(--text-secondary);" id="timecodeText">00:00 / 00:18</span>
+        </div>
+      </div>
+
+      <div class="shots-header">
+        <div>
+          <h2 style="font-size: 15px; font-weight: 700;">Danh Sách Phân Cảnh (Click vào cảnh để xem thử & chỉnh sửa)</h2>
+          <p style="font-size: 12px; color: var(--text-secondary);">Bạn có thể sửa trực tiếp lời bình hoặc bấm tạo lại từng cảnh riêng lẻ</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="addNewShot()">+ Thêm Cảnh Quay</button>
+      </div>
+
+      <div class="shots-grid" id="shotsGrid"></div>
+    </main>
+  </div>
+
+  <!-- HỘP THOẠI ĐỒNG BỘ LÊN GITHUB (1-CLICK DEPLOY MODAL) -->
+  <div class="modal-backdrop" id="githubModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 style="font-size: 16px; font-weight: 700;">☁️ Đồng Bộ Toàn Bộ Dự Án Lên GitHub (`video3dremotion`)</h3>
+        <button class="btn btn-ghost btn-sm" onclick="closeGitHubModal()">✕ Đóng</button>
+      </div>
+      <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+        Đẩy trọn bộ <strong>25 file mã nguồn hoàn chỉnh</strong> (gồm Backend FastAPI + Shot Hash Cache, LangGraph Multi-Agent, Google Flow Bridge, Remotion 3D + Three.js DCI 2K, 3D LUT Kodak 2383 và giao diện Studio mới này) lên tài khoản GitHub của bạn.
+      </p>
+
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <a href="https://github.com/settings/tokens/new?description=video3dremotion-studio&scopes=repo" target="_blank" class="btn btn-ghost btn-sm" style="border-color: var(--primary); color: var(--primary);">
+          🔑 Bước 1: Bấm lấy Token Classic (Đã tích sẵn quyền repo)
+        </a>
+        <a href="https://github.com/new?name=video3dremotion&visibility=public" target="_blank" class="btn btn-ghost btn-sm">
+          ➕ Tạo sẵn vỏ Repo (Tùy chọn)
+        </a>
+      </div>
+
+      <div>
+        <label class="field-label">Mã GitHub Personal Access Token của bạn:</label>
+        <input type="text" id="ghTokenInput" class="clean-input" value="" placeholder="Paste your GitHub PAT here..." style="font-family: monospace; padding: 10px;" />
+      </div>
+
+      <button class="btn btn-success" id="btnDeployNow" onclick="pushAllFilesToGitHubFromBrowser()">
+        🚀 Bước 2: Tạo Repo &amp; Cập Nhật Toàn Bộ 25 File Lên GitHub Ngay
+      </button>
+
+      <div class="status-toast" id="ghModalLog">Sẵn sàng kết nối api.github.com...</div>
+    </div>
+  </div>
+
+  <script>
+    const REPO_FILES_BUNDLE = {".gitignore": "# Dependencies\nnode_modules/\n__pycache__/\n*.py[cod]\n.venv/\nvenv/\nenv/\n\n# Build & Render Outputs\nout/\ndist/\nbuild/\nworkspace_assets/\nrenderer/public/assets/\n*.mp4\n*.mov\n*.wav\n\n# Environment & Secrets\n.env\n.env.local\n.DS_Store\nThumbs.db\n", ".env.example": "# API Key cho Multi-Agent Director (Gemini 2.5 Pro)\nGEMINI_API_KEY=your_gemini_api_key_here\n\n# Cấu hình Google Labs Flow (1.000 credits/tháng)\n# Chế độ: veo-3-fast (20 credits/clip 8s) | veo-3.1-lite (10 credits/clip) | mock (chạy thử 0 tốn credit)\nFLOW_MODEL_TIER=veo-3-fast\nFLOW_SIMULATION_MODE=false\n\n# Cấu hình phần cứng cho Dell Precision 7530 (Xeon E-2176M + Quadro P2000 4GB)\nREMOTION_CONCURRENCY=3\nREMOTION_GL_BACKEND=angle\nENABLE_NVENC=true\nDCI_WIDTH=2048\nDCI_HEIGHT=1080\nCINEMA_FPS=24\n", "README.md": "# 🎬 video3dremotion — AI Director & 3D Cinematic Video-by-Code Studio (DCI 2K @ 24fps)\n\nHệ thống tự động hóa sản xuất video điện ảnh chuẩn rạp chiếu phim (**DCI 2K `2048x1080` / CinemaScope `2.39:1` @ `24fps`**) bằng code, kết hợp **Multi-Agent AI Filmmaking (Human-in-the-Loop)**, **Google Labs Flow (1.000 Credits Veo 3)** và **Remotion + Three.js (`@remotion/three`) + FFmpeg NVIDIA NVENC**.\n\nĐược thiết kế và tinh chỉnh phần cứng chuyên biệt cho máy trạm **Dell Precision 7530 (Intel Xeon E-2176M 6C/12T, 32GB RAM, NVIDIA Quadro P2000 4GB VRAM)**.\n\n## ✨ Kiến Trúc Cốt Lõi (5 Tầng Tự Động Hóa & 2 Trạm Duyệt)\n\n1. **Multi-Agent Scripting & Shot Breakdown (`backend/agents/director_graph.py`)**:\n   - Bạn nhập mô tả ý tưởng video bằng tiếng Việt.\n   - **Director & Screenwriter Agent** tự động lên kịch bản tổng, khóa hồ sơ nhân vật (`Character Reference Bank`) và chia nhỏ thành danh sách các cảnh quay (`Shots` dài 4–6 giây) kèm thông số máy quay (`24mm`, `35mm`, `50mm`, `85mm Anamorphic`, `f/1.8`, `Slow Dolly In`, `Tracking Shot`).\n2. **Trạm Duyệt 1 — Storyboard Tĩnh Miễn Phí 0 Credit (`backend/services/google_flow_bridge.py`)**:\n   - Tự động gọi Google Labs Flow tạo ảnh `First Frame` cho toàn bộ các cảnh bằng **Nano Banana 2 / Imagen 4** (**Tốn 0 Credit**).\n   - Bạn xem trước trên Web Studio: cảnh nào chưa ưng bấm **Tạo lại ảnh** hoàn toàn miễn phí.\n3. **Sinh Cảnh Quay Động bằng Veo 3 Fast (`Image-to-Video i2v`)**:\n   - Chỉ những cảnh bạn đã bấm **Duyệt Storyboard** mới được gửi sang chế độ `i2v` của **Veo 3 Fast** (`20 credits/cảnh`) hoặc **Veo 3.1 Lite** (`10 credits/cảnh`).\n4. **Trạm Duyệt 2 — Duyệt Từng Cảnh Quay Video**:\n   - Xem thử từng clip cảnh quay. Nếu 1 cảnh chưa ưng, chỉ bấm quay lại đúng cảnh đó, giữ nguyên các cảnh đã đạt.\n5. **Ghép Cảnh 3D, Hiệu Ứng Quang Học & Xuất Phim Chuẩn Rạp DCI 2K (`renderer/` & `scripts/`)**:\n   - **Remotion + React Three Fiber (`CinematicScene3D.tsx`)**: Tạo không gian 3D có hạt bụi sáng lơ lửng (Volumetric Dust), Depth of Field (Bokeh), Motion Blur góc màn trập `180°`, chuyển cảnh âm thanh sớm **J-Cut (`0.5s`)**, chữ 3D điện ảnh và thanh chắn **CinemaScope `2.39:1`**.\n   - **FFmpeg NVIDIA NVENC (`master_dci2k_nvenc.ps1`)**: Phóng nét thông minh `Lanczos + CAS (Contrast Adaptive Sharpening)`, áp bảng màu phim nhựa **3D LUT Kodak 2383 (`.cube`)** và mã hóa bằng chip phần cứng `h264_nvenc` trên card **Quadro P2000**.\n\n## 🚀 Hướng Dẫn Cài Đặt Nhanh Trên Windows 11\n\n### Bước 1: Cài đặt Backend Python & Cầu nối Google Labs Flow\n```powershell\npython -m venv .venv\n.\\.venv\\Scripts\\Activate.ps1\npip install -r backend/requirements.txt\n\n# Cài đặt công cụ điều khiển Google Flow CLI và đăng nhập 1 lần\nuv tool install gflow-cli\nuv tool run --from gflow-cli playwright install chromium\ngflow auth login --browser chrome\n\n# Tạo bảng màu phim nhựa 3D LUT Kodak 2383 (.cube)\npython scripts/generate_kodak2383_lut.py\n```\n\n### Bước 2: Cài đặt Engine 3D Remotion (DCI 2K)\n```powershell\ncd renderer\nnpm install\nnpx remotion studio\n```\n\n### Bước 3: Khởi động Server Điều Phối & Giao Diện Studio Duyệt Cảnh\n```powershell\nuvicorn backend.main:app --reload --port 8000\n```\nMở trình duyệt tại `http://localhost:8000` (hoặc mở trực tiếp file `video3dremotion_studio.html`) để nhập ý tưởng, duyệt từng cảnh quay và xuất phim chuẩn rạp DCI 2K!\n", "backend/requirements.txt": "fastapi>=0.115.0\nuvicorn[standard]>=0.30.0\npydantic>=2.9.0\npython-dotenv>=1.0.1\nlanggraph>=0.2.35\nlangchain-core>=0.3.10\nlangchain-google-genai>=2.0.1\nnumpy>=1.26.0\n", "backend/__init__.py": "# video3dremotion backend package\n", "backend/models.py": "from enum import Enum\nfrom typing import List, Optional\nfrom pydantic import BaseModel, Field\n\n\nclass ShotStatus(str, Enum):\n    DRAFT = \"draft\"\n    STORYBOARD_READY = \"storyboard_ready\"       # Đã có ảnh tĩnh (0 credit), chờ duyệt ở Trạm 1\n    STORYBOARD_APPROVED = \"storyboard_approved\" # Đã duyệt ảnh, sẵn sàng gọi Veo 3 i2v\n    VIDEO_READY = \"video_ready\"                 # Đã có clip Veo 3, chờ duyệt ở Trạm 2\n    VIDEO_APPROVED = \"video_approved\"           # Đã duyệt cảnh quay, sẵn sàng ghép phim DCI 2K\n    REGENERATE_REQUESTED = \"regenerate_requested\"\n\n\nclass CameraSpec(BaseModel):\n    shot_size: str = Field(\n        default=\"Medium Anamorphic Shot\",\n        description=\"Cỡ cảnh: Extreme Close-Up (ECU), Close-Up, Medium Shot, Wide Establishing Shot\",\n    )\n    focal_length: str = Field(\n        default=\"50mm Anamorphic\",\n        description=\"Tiêu cự ống kính: 24mm, 35mm, 50mm, 85mm Anamorphic\",\n    )\n    aperture: str = Field(default=\"f/1.8\", description=\"Khẩu độ ống kính tạo hiệu ứng xoá phông Bokeh\")\n    camera_motion: str = Field(\n        default=\"Slow Dolly Push-In\",\n        description=\"Chuyển động máy quay: Slow Dolly Push-In, Low-Angle Tracking, Crane Up, Subtle Handheld\",\n    )\n    lighting_mood: str = Field(\n        default=\"Volumetric Golden Hour & Soft Rim Light\",\n        description=\"Thiết kế ánh sáng điện ảnh cho cảnh quay\",\n    )\n\n\nclass ShotItem(BaseModel):\n    shot_id: str\n    order: int\n    duration_seconds: float = Field(default=4.5, ge=2.0, le=8.0)\n    status: ShotStatus = Field(default=ShotStatus.DRAFT)\n    narration_text: str = Field(default=\"\", description=\"Lời bình / Voiceover của cảnh\")\n    visual_synopsis: str = Field(..., description=\"Mô tả cảnh quay bằng tiếng Việt để người dùng duyệt\")\n    veo_image_prompt: str = Field(..., description=\"Prompt tiếng Anh chuẩn tạo ảnh First Frame trên Google Flow\")\n    veo_motion_prompt: str = Field(..., description=\"Prompt tiếng Anh điều khiển chuyển động cho Veo 3 i2v\")\n    camera: CameraSpec = Field(default_factory=CameraSpec)\n    title_overlay: Optional[str] = Field(default=None, description=\"Chữ 3D điện ảnh xuất hiện trong cảnh\")\n    particle_preset: str = Field(default=\"warm_dust\", description=\"Hiệu ứng hạt 3D: warm_dust | mist | embers | none\")\n    user_feedback: Optional[str] = Field(default=None)\n    first_frame_path: Optional[str] = None\n    raw_video_path: Optional[str] = None\n    voiceover_path: Optional[str] = None\n\n\nclass CinemaProject(BaseModel):\n    project_id: str\n    user_prompt: str\n    title: str = \"Dự Án Phim Điện Ảnh DCI 2K\"\n    logline: str = \"\"\n    resolution_width: int = 2048\n    resolution_height: int = 1080\n    aspect_ratio_crop: str = \"2.39:1\"\n    fps: int = 24\n    lut_file: str = \"luts/kodak_2383_cinema.cube\"\n    character_reference_prompt: str = \"\"\n    current_stage: str = \"init\"\n    shots: List[ShotItem] = Field(default_factory=list)\n\n\nclass CreateProjectRequest(BaseModel):\n    user_prompt: str\n    simulation_mode: bool = False\n\n\nclass ShotFeedbackRequest(BaseModel):\n    feedback: Optional[str] = None\n    model_tier: str = \"veo-3-fast\"\n", "backend/services/__init__.py": "# services package\n", "backend/services/google_flow_bridge.py": "import os\nimport pathlib\nimport shutil\nimport subprocess\nfrom backend.models import ShotItem\n\nASSETS_DIR = pathlib.Path(\"./renderer/public/assets\")\nASSETS_DIR.mkdir(parents=True, exist_ok=True)\n\n\nclass GoogleFlowBridge:\n    \"\"\"\n    Cầu nối tự động hóa Google Labs Flow (1.000 credits/tháng) qua gflow-cli.\n    Bảo vệ túi tiền credit của bạn theo nguyên tắc:\n      1. Ảnh Storyboard (First Frame) -> Dùng Nano Banana / Imagen 4 (0 CREDIT).\n      2. Chỉ khi bạn bấm Duyệt Ảnh -> Mới gọi Veo 3 Fast (20 credits) ở chế độ Image-to-Video (i2v).\n    \"\"\"\n\n    @staticmethod\n    def is_simulation_mode() -> bool:\n        return os.getenv(\"FLOW_SIMULATION_MODE\", \"false\").lower() == \"true\" or shutil.which(\"gflow\") is None\n\n    @staticmethod\n    def check_credits() -> dict:\n        if GoogleFlowBridge.is_simulation_mode():\n            return {\n                \"mode\": \"simulation\",\n                \"monthly_credits_remaining\": 1000,\n                \"daily_free_credits\": 50,\n                \"message\": \"Chế độ mô phỏng (Chưa tìm thấy gflow-cli hoặc đang bật FLOW_SIMULATION_MODE)\",\n            }\n        res = subprocess.run([\"gflow\", \"credits\", \"user\"], capture_output=True, text=True, check=False)\n        return {\"mode\": \"live_google_flow\", \"raw_output\": res.stdout.strip()}\n\n    @staticmethod\n    def generate_free_storyboard_frame(project_id: str, shot: ShotItem) -> str:\n        out_dir = ASSETS_DIR / project_id / \"frames\"\n        out_dir.mkdir(parents=True, exist_ok=True)\n        out_file = out_dir / f\"{shot.shot_id}_first_frame.png\"\n\n        full_prompt = (\n            f\"{shot.veo_image_prompt}, shot on ARRI Alexa 65, {shot.camera.focal_length} lens, \"\n            f\"{shot.camera.aperture}, {shot.camera.lighting_mood}, 2.39:1 CinemaScope anamorphic framing, \"\n            f\"cinematic color grading, photorealistic, clean composition, text-free, no watermarks\"\n        )\n        if shot.user_feedback:\n            full_prompt += f\", director revision: {shot.user_feedback}\"\n\n        if GoogleFlowBridge.is_simulation_mode():\n            out_file.write_text(f\"SIMULATED_FRAME: {full_prompt}\", encoding=\"utf-8\")\n            return f\"/assets/{project_id}/frames/{shot.shot_id}_first_frame.png\"\n\n        cmd = [\n            \"gflow\", \"image\", \"t2i\",\n            full_prompt,\n            \"--aspect\", \"16:9\",\n            \"--output\", str(out_file),\n        ]\n        subprocess.run(cmd, check=True)\n        return f\"/assets/{project_id}/frames/{shot.shot_id}_first_frame.png\"\n\n    @staticmethod\n    def generate_veo3_shot_video(\n        project_id: str,\n        shot: ShotItem,\n        model_tier: str = \"veo-3-fast\",\n    ) -> str:\n        out_dir = ASSETS_DIR / project_id / \"clips\"\n        out_dir.mkdir(parents=True, exist_ok=True)\n        out_video = out_dir / f\"{shot.shot_id}_veo3.mp4\"\n\n        local_frame = ASSETS_DIR / project_id / \"frames\" / f\"{shot.shot_id}_first_frame.png\"\n\n        motion_prompt = (\n            f\"{shot.veo_motion_prompt}. Camera movement: {shot.camera.camera_motion}. \"\n            f\"Keep consistent lighting ({shot.camera.lighting_mood}) and natural 24fps motion.\"\n        )\n        if shot.user_feedback:\n            motion_prompt += f\" Director note: {shot.user_feedback}.\"\n\n        if GoogleFlowBridge.is_simulation_mode():\n            out_video.write_text(f\"SIMULATED_VEO3_CLIP ({model_tier}): {motion_prompt}\", encoding=\"utf-8\")\n            return f\"/assets/{project_id}/clips/{shot.shot_id}_veo3.mp4\"\n\n        cmd = [\n            \"gflow\", \"video\", \"i2v\",\n            \"--image\", str(local_frame.resolve()),\n            \"--prompt\", motion_prompt,\n            \"--model\", model_tier,\n            \"--aspect\", \"16:9\",\n            \"--output\", str(out_video),\n        ]\n        subprocess.run(cmd, check=True)\n        return f\"/assets/{project_id}/clips/{shot.shot_id}_veo3.mp4\"\n", "backend/services/remotion_runner.py": "import json\nimport os\nimport pathlib\nfrom backend.models import CinemaProject, ShotStatus\n\nRENDERER_DIR = pathlib.Path(\"./renderer\")\nMANIFEST_PATH = RENDERER_DIR / \"public\" / \"project_manifest.json\"\nOUT_DIR = pathlib.Path(\"./out\")\n\n\nclass RemotionRunner:\n    \"\"\"\n    Điều phối việc xuất danh sách các cảnh đã duyệt sang Remotion (2048x1080 @ 24fps)\n    và gọi FFmpeg NVENC trên card NVIDIA Quadro P2000 để đóng gói file phim cuối cùng.\n    \"\"\"\n\n    @staticmethod\n    def export_manifest(project: CinemaProject) -> str:\n        MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)\n        approved_shots = [\n            {\n                \"shotId\": s.shot_id,\n                \"order\": s.order,\n                \"durationSeconds\": s.duration_seconds,\n                \"rawVideoUrl\": s.raw_video_path or \"\",\n                \"voiceoverUrl\": s.voiceover_path or \"\",\n                \"titleOverlay\": s.title_overlay,\n                \"focalLength\": s.camera.focal_length,\n                \"cameraMotion\": s.camera.camera_motion,\n                \"particlePreset\": s.particle_preset,\n                \"narrationText\": s.narration_text,\n            }\n            for s in sorted(project.shots, key=lambda x: x.order)\n            if s.status == ShotStatus.VIDEO_APPROVED\n        ]\n\n        payload = {\n            \"projectId\": project.project_id,\n            \"projectTitle\": project.title,\n            \"width\": project.resolution_width,\n            \"height\": project.resolution_height,\n            \"fps\": project.fps,\n            \"enableAnamorphicBars\": True,\n            \"shots\": approved_shots,\n        }\n        MANIFEST_PATH.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding=\"utf-8\")\n        return str(MANIFEST_PATH.resolve())\n\n    @staticmethod\n    def render_dci2k_master(project: CinemaProject) -> dict:\n        OUT_DIR.mkdir(parents=True, exist_ok=True)\n        manifest_file = RemotionRunner.export_manifest(project)\n\n        raw_remotion_mp4 = OUT_DIR / f\"{project.project_id}_remotion_2048x1080.mp4\"\n        final_cinema_mp4 = OUT_DIR / f\"{project.project_id}_FINAL_DCI2K_24FPS.mp4\"\n        concurrency = os.getenv(\"REMOTION_CONCURRENCY\", \"3\")\n\n        remotion_cmd = [\n            \"npx\", \"remotion\", \"render\",\n            \"src/index.ts\",\n            \"Video3DRemotionCinema\",\n            str(raw_remotion_mp4.resolve()),\n            f\"--props={manifest_file}\",\n            f\"--concurrency={concurrency}\",\n            \"--gl=angle\",\n        ]\n\n        ffmpeg_filter = (\n            f\"scale=2048:1080:flags=lanczos,cas=0.4,\"\n            f\"lut3d=file='{project.lut_file}',noise=c0s=4:c0f=t+u\"\n        )\n        ffmpeg_cmd = [\n            \"ffmpeg\", \"-y\", \"-hwaccel\", \"cuda\",\n            \"-i\", str(raw_remotion_mp4.resolve()),\n            \"-vf\", ffmpeg_filter,\n            \"-r\", \"24\",\n            \"-c:v\", \"h264_nvenc\",\n            \"-preset\", \"p6\",\n            \"-tune\", \"hq\",\n            \"-rc\", \"vbr\",\n            \"-cq\", \"17\",\n            \"-b:v\", \"25M\",\n            \"-maxrate\", \"35M\",\n            \"-bufsize\", \"50M\",\n            \"-pix_fmt\", \"yuv420p\",\n            \"-c:a\", \"aac\", \"-b:a\", \"320k\",\n            str(final_cinema_mp4.resolve()),\n        ]\n\n        return {\n            \"status\": \"manifest_exported\",\n            \"manifest_path\": manifest_file,\n            \"remotion_command\": \" \".join(remotion_cmd),\n            \"ffmpeg_nvenc_command\": \" \".join(ffmpeg_cmd),\n            \"output_path\": str(final_cinema_mp4.resolve()),\n        }\n", "backend/agents/__init__.py": "# agents package\n", "backend/agents/director_graph.py": "import os\nfrom typing import List\nfrom backend.models import CameraSpec, CinemaProject, ShotItem, ShotStatus\nfrom backend.services.google_flow_bridge import GoogleFlowBridge\n\n\nclass CinematicDirectorAgent:\n    \"\"\"\n    Hệ thống Multi-Agent kết hợp:\n      - Screenwriter Agent (Lên kịch bản tổng & lời dẫn)\n      - Cinematographer Agent (Chia nhỏ thành các cảnh quay chuẩn rạp DCI 2K 2.39:1)\n      - Storyboard & Veo 3 Orchestrator (Có 2 trạm dừng chờ người dùng duyệt)\n    \"\"\"\n\n    @staticmethod\n    def analyze_and_breakdown_script(project: CinemaProject) -> CinemaProject:\n        api_key = os.getenv(\"GEMINI_API_KEY\", \"\")\n        if api_key and api_key != \"your_gemini_api_key_here\":\n            try:\n                from langchain_google_genai import ChatGoogleGenerativeAI\n                llm = ChatGoogleGenerativeAI(\n                    model=\"gemini-2.5-pro\",\n                    temperature=0.35,\n                    google_api_key=api_key,\n                )\n                structured_llm = llm.with_structured_output(CinemaProject)\n                prompt = f\"\"\"\n                Bạn là Đạo diễn Điện ảnh & DOP (Quay phim trưởng) đạt giải Oscar.\n                Hãy phân tích yêu cầu làm video sau của người dùng:\n                \"{project.user_prompt}\"\n\n                Nhiệm vụ:\n                1. Đặt tiêu đề phim (title), tóm tắt (logline) và mô tả nhân vật/bối cảnh cố định (character_reference_prompt).\n                2. Chia kịch bản thành 4 đến 6 cảnh quay (shots) chuẩn điện ảnh (mỗi cảnh từ 4.0s đến 5.5s).\n                3. Thiết kế thông số ống kính Anamorphic (24mm, 35mm, 50mm, 85mm), khẩu độ (f/1.4 - f/2.8) và chuyển động máy quay đa dạng.\n                4. Viết 'veo_image_prompt' (mô tả khung hình đầu chi tiết bằng tiếng Anh) và 'veo_motion_prompt' (mô tả chuyển động máy và chủ thể bằng tiếng Anh).\n                \"\"\"\n                result: CinemaProject = structured_llm.invoke(prompt)\n                result.project_id = project.project_id\n                result.user_prompt = project.user_prompt\n                result.current_stage = \"storyboard_review\"\n                return result\n            except Exception as exc:\n                print(f\"[Fallback] Sử dụng bộ phân cảnh mẫu do lỗi gọi LLM: {exc}\")\n\n        topic = project.user_prompt.strip()\n        project.title = f\"PHIM ĐIỆN ẢNH DCI 2K: {topic[:42].upper()}\"\n        project.logline = f\"Hành trình điện ảnh màn ảnh rộng 2.39:1 tái hiện: {topic}\"\n        project.character_reference_prompt = (\n            \"Consistent cinematic protagonist, natural skin texture, wearing weathered dark expedition jacket, \"\n            \"shot on ARRI Alexa 65 with Panavision C-Series Anamorphic lenses, Kodak 2383 color science\"\n        )\n\n        sample_shots: List[ShotItem] = [\n            ShotItem(\n                shot_id=\"shot_01\",\n                order=1,\n                duration_seconds=4.5,\n                status=ShotStatus.DRAFT,\n                narration_text=\"Giữa không gian mênh mông của bình minh, mọi câu chuyện vĩ đại đều bắt đầu từ một khoảnh khắc tĩnh lặng.\",\n                visual_synopsis=f\"[Cảnh Mở Đầu — Đại Cảnh Anamorphic] Toàn cảnh không gian hùng vĩ giới thiệu bối cảnh chính của '{topic}' dưới ánh nắng vàng xuyên qua lớp sương mù dày.\",\n                veo_image_prompt=f\"Extreme wide establishing shot of {topic}, volumetric golden hour sunbeams piercing through morning mist, dramatic depth, epic scale\",\n                veo_motion_prompt=\"Slow cinematic drone push-in forward through floating mist, subtle wind moving the environment\",\n                camera=CameraSpec(\n                    shot_size=\"Extreme Wide Shot (EWS)\",\n                    focal_length=\"24mm Anamorphic\",\n                    aperture=\"f/2.8\",\n                    camera_motion=\"Slow Aerial Push-In\",\n                    lighting_mood=\"Volumetric Golden Hour God Rays\",\n                ),\n                title_overlay=\"KHỞI NGUỒN ĐẠI NGÀN\",\n                particle_preset=\"mist\",\n            ),\n            ShotItem(\n                shot_id=\"shot_02\",\n                order=2,\n                duration_seconds=4.0,\n                status=ShotStatus.DRAFT,\n                narration_text=\"Từng chi tiết nhỏ nhất đều mang trong mình hơi thở của thời gian và sự chế tác tỉ mỉ.\",\n                visual_synopsis=f\"[Cảnh Cận Macro — Chiều Sâu Trường Ảnh] Cận cảnh chi tiết chủ thể trung tâm của '{topic}', hậu cảnh xoá phông Bokeh mượt mà với các hạt bụi sáng lơ lửng.\",\n                veo_image_prompt=f\"Extreme close-up macro shot of key detail in {topic}, shallow depth of field, creamy anamorphic oval bokeh, warm rim lighting\",\n                veo_motion_prompt=\"Ultra-slow macro dolly track left to right, focus rack from foreground texture to main subject\",\n                camera=CameraSpec(\n                    shot_size=\"Extreme Close-Up (ECU)\",\n                    focal_length=\"85mm Anamorphic Macro\",\n                    aperture=\"f/1.4\",\n                    camera_motion=\"Macro Parallax Slider & Rack Focus\",\n                    lighting_mood=\"Warm Chiaroscuro Rim Light\",\n                ),\n                title_overlay=None,\n                particle_preset=\"warm_dust\",\n            ),\n            ShotItem(\n                shot_id=\"shot_03\",\n                order=3,\n                duration_seconds=5.0,\n                status=ShotStatus.DRAFT,\n                narration_text=\"Khi chuyển động đạt đến đỉnh cao, ánh sáng và cảm xúc hòa quyện thành một bản giao hưởng thị giác.\",\n                visual_synopsis=f\"[Cảnh Cao Trào — Góc Máy Thấp Hất Lên] Máy quay bám đuổi (Tracking shot) góc thấp tạo cảm giác choáng ngợp và uy lực cho '{topic}'.\",\n                veo_image_prompt=f\"Low-angle heroic medium shot of {topic} in dynamic action, dramatic contrast, teal shadows and warm amber highlights, anamorphic lens flare\",\n                veo_motion_prompt=\"Dynamic low-angle gimbal tracking shot orbiting 30 degrees around the subject in slow motion\",\n                camera=CameraSpec(\n                    shot_size=\"Heroic Low-Angle Medium Shot\",\n                    focal_length=\"35mm Anamorphic\",\n                    aperture=\"f/1.8\",\n                    camera_motion=\"Dynamic Low-Angle Orbit & Track\",\n                    lighting_mood=\"High-Contrast Teal & Orange Dramatic Lighting\",\n                ),\n                title_overlay=\"ĐỈNH CAO CHUYỂN ĐỘNG\",\n                particle_preset=\"embers\",\n            ),\n            ShotItem(\n                shot_id=\"shot_04\",\n                order=4,\n                duration_seconds=4.5,\n                status=ShotStatus.DRAFT,\n                narration_text=\"Một dấu ấn điện ảnh không thể trộn lẫn, trường tồn trong từng khung hình.\",\n                visual_synopsis=f\"[Cảnh Kết (Outro) — Bố Cục Đối Xứng] Khung hình đối xứng hoàn hảo khép lại câu chuyện '{topic}', ánh sáng dịu dần để nổi bật thông điệp thương hiệu 3D.\",\n                veo_image_prompt=f\"Symmetrical cinematic master shot of {topic} at twilight blue hour, warm glowing focal point in center, moody atmospheric haze\",\n                veo_motion_prompt=\"Slow crane pull-back and tilt up into the atmospheric horizon\",\n                camera=CameraSpec(\n                    shot_size=\"Symmetrical Wide Master Shot\",\n                    focal_length=\"50mm Anamorphic\",\n                    aperture=\"f/2.0\",\n                    camera_motion=\"Slow Crane Pull-Back\",\n                    lighting_mood=\"Twilight Blue Hour & Warm Center Glow\",\n                ),\n                title_overlay=\"DẤU ẤN VƯỢT THỜI GIAN\",\n                particle_preset=\"warm_dust\",\n            ),\n        ]\n        project.shots = sample_shots\n        return project\n\n    @staticmethod\n    def run_gate1_free_storyboards(project: CinemaProject) -> CinemaProject:\n        for shot in project.shots:\n            if shot.status in (ShotStatus.DRAFT, ShotStatus.REGENERATE_REQUESTED):\n                shot.first_frame_path = GoogleFlowBridge.generate_free_storyboard_frame(\n                    project.project_id, shot\n                )\n                shot.status = ShotStatus.STORYBOARD_READY\n        project.current_stage = \"gate1_waiting_storyboard_approval\"\n        return project\n\n    @staticmethod\n    def run_gate2_veo3_generation(\n        project: CinemaProject, model_tier: str = \"veo-3-fast\"\n    ) -> CinemaProject:\n        for shot in project.shots:\n            if shot.status == ShotStatus.STORYBOARD_APPROVED:\n                shot.raw_video_path = GoogleFlowBridge.generate_veo3_shot_video(\n                    project.project_id, shot, model_tier=model_tier\n                )\n                shot.status = ShotStatus.VIDEO_READY\n        project.current_stage = \"gate2_waiting_video_approval\"\n        return project\n", "backend/main.py": "import pathlib\nimport uuid\nfrom typing import Dict\nfrom fastapi import FastAPI, HTTPException\nfrom fastapi.middleware.cors import CORSMiddleware\nfrom fastapi.responses import HTMLResponse\nfrom backend.models import (\n    CinemaProject,\n    CreateProjectRequest,\n    ShotFeedbackRequest,\n    ShotStatus,\n)\nfrom backend.agents.director_graph import CinematicDirectorAgent\nfrom backend.services.google_flow_bridge import GoogleFlowBridge\nfrom backend.services.remotion_runner import RemotionRunner\nfrom backend.services.shot_cache import ShotCacheManager\n\napp = FastAPI(\n    title=\"video3dremotion — High-Speed DCI 2K Cinema Studio\",\n    version=\"3.0.0\",\n)\n\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=[\"*\"],\n    allow_credentials=True,\n    allow_methods=[\"*\"],\n    allow_headers=[\"*\"],\n)\n\nPROJECTS_DB: Dict[str, CinemaProject] = {}\nSTUDIO_HTML_PATH = pathlib.Path(\"./studio_ui/video3dremotion_studio.html\")\n\n\n@app.get(\"/\", response_class=HTMLResponse)\ndef serve_studio_ui():\n    if STUDIO_HTML_PATH.exists():\n        return STUDIO_HTML_PATH.read_text(encoding=\"utf-8\")\n    return \"<h1>video3dremotion API is running</h1>\"\n\n\n@app.get(\"/api/health\")\ndef health_check():\n    return {\n        \"status\": \"ok\",\n        \"version\": \"3.0.0\",\n        \"hardware_profile\": \"Dell Precision 7530 (Xeon E-2176M + 32GB RAM + Quadro P2000 4GB)\",\n        \"cinema_standard\": \"DCI 2K (2048x1080 @ 24fps, CinemaScope 2.39:1)\",\n        \"flow_credits\": GoogleFlowBridge.check_credits(),\n    }\n\n\n@app.post(\"/api/projects\", response_model=CinemaProject)\ndef create_project_and_breakdown(req: CreateProjectRequest):\n    project_id = f\"proj_{uuid.uuid4().hex[:8]}\"\n    proj = CinemaProject(project_id=project_id, user_prompt=req.user_prompt)\n    proj = CinematicDirectorAgent.analyze_and_breakdown_script(proj)\n    proj = CinematicDirectorAgent.run_gate1_free_storyboards(proj)\n    PROJECTS_DB[project_id] = proj\n    return proj\n\n\n@app.get(\"/api/projects/{project_id}\", response_model=CinemaProject)\ndef get_project(project_id: str):\n    if project_id not in PROJECTS_DB:\n        raise HTTPException(status_code=404, detail=\"Không tìm thấy dự án\")\n    return PROJECTS_DB[project_id]\n\n\n@app.post(\"/api/projects/{project_id}/shots/{shot_id}/regenerate-storyboard\", response_model=CinemaProject)\ndef regenerate_single_storyboard(project_id: str, shot_id: str, req: ShotFeedbackRequest):\n    proj = get_project(project_id)\n    for shot in proj.shots:\n        if shot.shot_id == shot_id:\n            shot.user_feedback = req.feedback\n            shot.status = ShotStatus.REGENERATE_REQUESTED\n            shot.first_frame_path = GoogleFlowBridge.generate_free_storyboard_frame(project_id, shot)\n            shot.status = ShotStatus.STORYBOARD_READY\n            break\n    return proj\n\n\n@app.post(\"/api/projects/{project_id}/approve-storyboards\", response_model=CinemaProject)\ndef approve_storyboards_and_generate_veo3(project_id: str, req: ShotFeedbackRequest):\n    proj = get_project(project_id)\n    for shot in proj.shots:\n        if shot.status == ShotStatus.STORYBOARD_READY:\n            shot.status = ShotStatus.STORYBOARD_APPROVED\n    proj = CinematicDirectorAgent.run_gate2_veo3_generation(proj, model_tier=req.model_tier)\n    return proj\n\n\n@app.post(\"/api/projects/{project_id}/shots/{shot_id}/regenerate-video\", response_model=CinemaProject)\ndef regenerate_single_veo3_video(project_id: str, shot_id: str, req: ShotFeedbackRequest):\n    proj = get_project(project_id)\n    for shot in proj.shots:\n        if shot.shot_id == shot_id:\n            shot.user_feedback = req.feedback\n            shot.raw_video_path = GoogleFlowBridge.generate_veo3_shot_video(\n                project_id, shot, model_tier=req.model_tier\n            )\n            shot.status = ShotStatus.VIDEO_READY\n            break\n    return proj\n\n\n@app.post(\"/api/projects/{project_id}/approve-all-and-render\")\ndef approve_all_shots_and_master_cinema(project_id: str):\n    proj = get_project(project_id)\n    cache_report = []\n    for shot in proj.shots:\n        shot.status = ShotStatus.VIDEO_APPROVED\n        cache_report.append({\n            \"shot_id\": shot.shot_id,\n            \"hash\": ShotCacheManager.compute_shot_hash(shot, proj.lut_file, proj.aspect_ratio_crop),\n            \"cached\": ShotCacheManager.is_cached(shot, proj.lut_file, proj.aspect_ratio_crop),\n        })\n    proj.current_stage = \"completed_mastering\"\n    render_info = RemotionRunner.render_dci2k_master(proj)\n    return {\n        \"project\": proj,\n        \"shot_cache\": cache_report,\n        \"mastering\": render_info,\n    }\n", "renderer/package.json": "{\n  \"name\": \"video3dremotion-renderer\",\n  \"version\": \"1.0.0\",\n  \"description\": \"DCI 2K (2048x1080 @ 24fps) 3D Remotion + Three.js + Postprocessing Cinema Renderer\",\n  \"private\": true,\n  \"scripts\": {\n    \"studio\": \"remotion studio src/index.ts\",\n    \"render:dci2k\": \"remotion render src/index.ts Video3DRemotionCinema ../out/remotion_raw_2048x1080.mp4 --concurrency=3 --gl=angle\"\n  },\n  \"dependencies\": {\n    \"@react-three/drei\": \"^9.114.0\",\n    \"@react-three/fiber\": \"^8.17.10\",\n    \"@react-three/postprocessing\": \"^2.16.3\",\n    \"@remotion/cli\": \"^4.0.240\",\n    \"@remotion/motion-blur\": \"^4.0.240\",\n    \"@remotion/player\": \"^4.0.240\",\n    \"@remotion/three\": \"^4.0.240\",\n    \"postprocessing\": \"^6.36.3\",\n    \"react\": \"^18.3.1\",\n    \"react-dom\": \"^18.3.1\",\n    \"remotion\": \"^4.0.240\",\n    \"three\": \"^0.169.0\"\n  },\n  \"devDependencies\": {\n    \"@types/react\": \"^18.3.11\",\n    \"@types/three\": \"^0.169.0\",\n    \"typescript\": \"^5.6.3\"\n  }\n}\n", "renderer/tsconfig.json": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"bundler\",\n    \"jsx\": \"react-jsx\",\n    \"strict\": true,\n    \"esModuleInterop\": true,\n    \"skipLibCheck\": true,\n    \"forceConsistentCasingInFileNames\": true\n  },\n  \"include\": [\"src\"]\n}\n", "renderer/remotion.config.ts": "import { Config } from \"@remotion/cli/config\";\n\n// Bắt buộc dùng phần cứng GPU rời NVIDIA Quadro P2000 (4GB VRAM) qua ANGLE\nConfig.setChromiumOpenGlRenderer(\"angle\");\n\n// Khóa 3 luồng render song song: tối ưu cho Xeon E-2176M (6C/12T) + 4GB VRAM ở chuẩn DCI 2K\nConfig.setConcurrency(3);\n\nConfig.setVideoImageFormat(\"jpeg\");\nConfig.setJpegQuality(95);\nConfig.setOverwriteOutput(true);\n", "renderer/src/index.ts": "import { registerRoot } from \"remotion\";\nimport { RemotionRoot } from \"./Root\";\n\nregisterRoot(RemotionRoot);\n", "renderer/src/Root.tsx": "import React from \"react\";\nimport { Composition } from \"remotion\";\nimport { CinematicMaster, CinematicMasterProps } from \"./CinematicMaster\";\n\nconst defaultProps: CinematicMasterProps = {\n  projectTitle: \"VIDEO3DREMOTION — DCI 2K CINEMA\",\n  enableAnamorphicBars: true,\n  shots: [\n    {\n      shotId: \"shot_01\",\n      durationSeconds: 4.5,\n      rawVideoUrl: \"\",\n      titleOverlay: \"KHỞI NGUỒN ĐẠI NGÀN\",\n      focalLength: \"24mm Anamorphic\",\n      cameraMotion: \"Slow Aerial Push-In\",\n      particlePreset: \"mist\",\n      narrationText: \"Giữa không gian mênh mông của bình minh, mọi câu chuyện vĩ đại đều bắt đầu.\",\n    },\n    {\n      shotId: \"shot_02\",\n      durationSeconds: 4.0,\n      rawVideoUrl: \"\",\n      titleOverlay: \"CHIỀU SÂU QUANG HỌC\",\n      focalLength: \"85mm Anamorphic Macro\",\n      cameraMotion: \"Macro Parallax Slider\",\n      particlePreset: \"warm_dust\",\n      narrationText: \"Từng chi tiết nhỏ nhất đều mang trong mình hơi thở của thời gian.\",\n    },\n  ],\n};\n\nexport const RemotionRoot: React.FC = () => {\n  const totalSeconds = defaultProps.shots.reduce((acc, s) => acc + s.durationSeconds, 0);\n  const fps = 24;\n\n  return (\n    <Composition\n      id=\"Video3DRemotionCinema\"\n      component={CinematicMaster}\n      durationInFrames={Math.max(24, Math.round(totalSeconds * fps))}\n      fps={fps}\n      width={2048}\n      height={1080}\n      defaultProps={defaultProps}\n    />\n  );\n};\n", "renderer/src/CinematicScene3D.tsx": "import React, { useMemo } from \"react\";\nimport { ThreeCanvas } from \"@remotion/three\";\nimport { useCurrentFrame, useVideoConfig, interpolate } from \"remotion\";\nimport * as THREE from \"three\";\n\ninterface CinematicScene3DProps {\n  particlePreset: \"warm_dust\" | \"mist\" | \"embers\" | \"none\" | string;\n  cameraMotion: string;\n}\n\nconst VolumetricParticles: React.FC<{\n  preset: string;\n  frame: number;\n  durationInFrames: number;\n}> = ({ preset, frame, durationInFrames }) => {\n  const count = preset === \"none\" ? 0 : 180;\n\n  const particles = useMemo(() => {\n    const positions = new Float32Array(count * 3);\n    for (let i = 0; i < count; i++) {\n      const seed1 = Math.sin(i * 12.9898) * 43758.5453;\n      const seed2 = Math.sin(i * 78.233) * 43758.5453;\n      const seed3 = Math.sin(i * 45.164) * 43758.5453;\n      positions[i * 3] = ((seed1 - Math.floor(seed1)) - 0.5) * 16;\n      positions[i * 3 + 1] = ((seed2 - Math.floor(seed2)) - 0.5) * 9;\n      positions[i * 3 + 2] = ((seed3 - Math.floor(seed3)) - 0.5) * 8;\n    }\n    return positions;\n  }, [count]);\n\n  if (count === 0) return null;\n\n  const driftY = interpolate(frame, [0, durationInFrames], [0, 0.85]);\n  const driftX = Math.sin(frame * 0.03) * 0.25;\n\n  const color =\n    preset === \"embers\"\n      ? \"#ff7b29\"\n      : preset === \"mist\"\n      ? \"#cfe8ff\"\n      : \"#ffe5b4\";\n\n  return (\n    <points position={[driftX, driftY, 0]}>\n      <bufferGeometry>\n        <bufferAttribute\n          attach=\"attributes-position\"\n          count={particles.length / 3}\n          array={particles}\n          itemSize={3}\n        />\n      </bufferGeometry>\n      <pointsMaterial\n        size={preset === \"mist\" ? 0.14 : 0.065}\n        color={color}\n        transparent\n        opacity={preset === \"mist\" ? 0.22 : 0.55}\n        blending={THREE.AdditiveBlending}\n        depthWrite={false}\n      />\n    </points>\n  );\n};\n\nexport const CinematicScene3D: React.FC<CinematicScene3DProps> = ({\n  particlePreset,\n}) => {\n  const frame = useCurrentFrame();\n  const { width, height, durationInFrames } = useVideoConfig();\n\n  const camZ = interpolate(frame, [0, durationInFrames], [6.0, 5.15], {\n    extrapolateRight: \"clamp\",\n  });\n  const swayX = Math.sin(frame * 0.045) * 0.08;\n  const swayY = Math.cos(frame * 0.035) * 0.05;\n\n  return (\n    <ThreeCanvas\n      width={width}\n      height={height}\n      style={{ position: \"absolute\", inset: 0, pointerEvents: \"none\" }}\n      camera={{ position: [swayX, swayY, camZ], fov: 42 }}\n    >\n      <ambientLight intensity={0.6} />\n      <directionalLight position={[5, 8, 4]} intensity={1.4} color=\"#ffdcb4\" />\n      <VolumetricParticles\n        preset={particlePreset}\n        frame={frame}\n        durationInFrames={durationInFrames}\n      />\n    </ThreeCanvas>\n  );\n};\n", "renderer/src/CinematicMaster.tsx": "import React from \"react\";\nimport {\n  AbsoluteFill,\n  Audio,\n  OffthreadVideo,\n  Sequence,\n  interpolate,\n  spring,\n  useCurrentFrame,\n  useVideoConfig,\n} from \"remotion\";\nimport { CameraMotionBlur } from \"@remotion/motion-blur\";\nimport { CinematicScene3D } from \"./CinematicScene3D\";\n\nexport interface ApprovedShot {\n  shotId: string;\n  durationSeconds: number;\n  rawVideoUrl: string;\n  voiceoverUrl?: string;\n  titleOverlay?: string;\n  focalLength: string;\n  cameraMotion: string;\n  particlePreset: string;\n  narrationText?: string;\n}\n\nexport interface CinematicMasterProps {\n  projectTitle: string;\n  shots: ApprovedShot[];\n  enableAnamorphicBars: boolean;\n}\n\nconst SingleCinematicShot: React.FC<{ shot: ApprovedShot }> = ({ shot }) => {\n  const frame = useCurrentFrame();\n  const { fps, durationInFrames } = useVideoConfig();\n\n  const scale = interpolate(frame, [0, durationInFrames], [1.05, 1.12], {\n    extrapolateRight: \"clamp\",\n  });\n\n  const opacity = interpolate(\n    frame,\n    [0, 8, durationInFrames - 8, durationInFrames],\n    [0, 1, 1, 0],\n    { extrapolateLeft: \"clamp\", extrapolateRight: \"clamp\" }\n  );\n\n  const textProgress = spring({\n    frame: frame - 8,\n    fps,\n    config: { damping: 200, stiffness: 80, mass: 1.2 },\n  });\n\n  return (\n    <AbsoluteFill style={{ backgroundColor: \"#05070a\", opacity }}>\n      <CameraMotionBlur shutterAngle={180} samples={6}>\n        <AbsoluteFill\n          style={{\n            transform: `scale(${scale})`,\n            filter: \"contrast(1.07) saturate(1.08)\",\n          }}\n        >\n          {shot.rawVideoUrl ? (\n            <OffthreadVideo\n              src={shot.rawVideoUrl}\n              style={{ width: \"2048px\", height: \"1080px\", objectFit: \"cover\" }}\n            />\n          ) : (\n            <AbsoluteFill\n              style={{\n                background:\n                  \"radial-gradient(circle at 50% 42%, #1e293b 0%, #090d16 70%, #020408 100%)\",\n              }}\n            />\n          )}\n        </AbsoluteFill>\n      </CameraMotionBlur>\n\n      <CinematicScene3D\n        particlePreset={shot.particlePreset || \"warm_dust\"}\n        cameraMotion={shot.cameraMotion}\n      />\n\n      <AbsoluteFill\n        style={{\n          background:\n            \"radial-gradient(ellipse at center, rgba(0,0,0,0) 56%, rgba(0,0,0,0.68) 100%)\",\n          pointerEvents: \"none\",\n        }}\n      />\n\n      {shot.titleOverlay && (\n        <AbsoluteFill\n          style={{\n            justifyContent: \"center\",\n            alignItems: \"center\",\n            pointerEvents: \"none\",\n          }}\n        >\n          <div\n            style={{\n              color: \"#F5F2EB\",\n              fontSize: \"52px\",\n              fontWeight: 300,\n              letterSpacing: `${interpolate(textProgress, [0, 1], [6, 24])}px`,\n              textTransform: \"uppercase\",\n              textShadow: \"0 10px 38px rgba(0, 0, 0, 0.9)\",\n              opacity: textProgress,\n              transform: `translateY(${interpolate(textProgress, [0, 1], [22, 0])}px)`,\n            }}\n          >\n            {shot.titleOverlay}\n          </div>\n        </AbsoluteFill>\n      )}\n\n      {shot.narrationText && (\n        <AbsoluteFill\n          style={{\n            justifyContent: \"flex-end\",\n            alignItems: \"center\",\n            paddingBottom: \"138px\",\n            pointerEvents: \"none\",\n          }}\n        >\n          <div\n            style={{\n              color: \"#E2E8F0\",\n              fontSize: \"26px\",\n              fontStyle: \"italic\",\n              fontWeight: 400,\n              maxWidth: \"1360px\",\n              textAlign: \"center\",\n              textShadow: \"0 2px 12px rgba(0,0,0,0.95)\",\n              backgroundColor: \"rgba(0,0,0,0.35)\",\n              padding: \"8px 24px\",\n              borderRadius: \"6px\",\n            }}\n          >\n            {shot.narrationText}\n          </div>\n        </AbsoluteFill>\n      )}\n    </AbsoluteFill>\n  );\n};\n\nexport const CinematicMaster: React.FC<CinematicMasterProps> = ({\n  shots,\n  enableAnamorphicBars = true,\n}) => {\n  const { fps } = useVideoConfig();\n  const J_CUT_FRAMES = 12;\n\n  let accumulatedFrames = 0;\n\n  return (\n    <AbsoluteFill style={{ backgroundColor: \"#000000\" }}>\n      {shots.map((shot, index) => {\n        const shotFrames = Math.round(shot.durationSeconds * fps);\n        const startFrame = accumulatedFrames;\n        accumulatedFrames += shotFrames;\n\n        return (\n          <React.Fragment key={shot.shotId}>\n            <Sequence from={startFrame} durationInFrames={shotFrames}>\n              <SingleCinematicShot shot={shot} />\n            </Sequence>\n\n            {shot.voiceoverUrl && (\n              <Sequence\n                from={Math.max(0, startFrame - (index > 0 ? J_CUT_FRAMES : 0))}\n                durationInFrames={shotFrames}\n              >\n                <Audio src={shot.voiceoverUrl} volume={1.0} />\n              </Sequence>\n            )}\n          </React.Fragment>\n        );\n      })}\n\n      {enableAnamorphicBars && (\n        <>\n          <div\n            style={{\n              position: \"absolute\",\n              top: 0,\n              left: 0,\n              right: 0,\n              height: \"111px\",\n              backgroundColor: \"#000000\",\n              zIndex: 100,\n            }}\n          />\n          <div\n            style={{\n              position: \"absolute\",\n              bottom: 0,\n              left: 0,\n              right: 0,\n              height: \"111px\",\n              backgroundColor: \"#000000\",\n              zIndex: 100,\n            }}\n          />\n        </>\n      )}\n    </AbsoluteFill>\n  );\n};\n", "scripts/generate_kodak2383_lut.py": "#!/usr/bin/env python3\n\"\"\"\nTự động sinh file màu điện ảnh 3D LUT chuẩn `.cube` (17x17x17)\nmô phỏng đường cong S-Curve và tông màu Teal & Orange của phim nhựa Kodak Vision3 2383\nđể FFmpeg áp trực tiếp khi xuất video chuẩn rạp DCI 2K.\n\"\"\"\n\nimport math\nimport pathlib\n\nLUT_PATH = pathlib.Path(\"../luts/kodak_2383_cinema.cube\")\n\n\ndef s_curve(x: float, contrast: float = 1.15) -> float:\n    x = max(0.0, min(1.0, x))\n    return 1.0 / (1.0 + math.exp(-contrast * 6.0 * (x - 0.5)))\n\n\ndef normalize_scurve(x: float) -> float:\n    low = s_curve(0.0)\n    high = s_curve(1.0)\n    return (s_curve(x) - low) / (high - low)\n\n\ndef build_kodak_2383_lut(out_path: pathlib.Path, size: int = 17) -> None:\n    out_path.parent.mkdir(parents=True, exist_ok=True)\n    lines = [\n        'TITLE \"VIDEO3DREMOTION_KODAK_2383_TEAL_ORANGE\"',\n        f\"LUT_3D_SIZE {size}\",\n        \"DOMAIN_MIN 0.0 0.0 0.0\",\n        \"DOMAIN_MAX 1.0 1.0 1.0\",\n    ]\n    for b_idx in range(size):\n        for g_idx in range(size):\n            for r_idx in range(size):\n                r = r_idx / (size - 1)\n                g = g_idx / (size - 1)\n                b = b_idx / (size - 1)\n\n                luma = 0.2126 * r + 0.7152 * g + 0.0722 * b\n                shadow_weight = (1.0 - luma) ** 1.5\n                highlight_weight = luma ** 1.4\n\n                r_graded = normalize_scurve(r) + 0.035 * highlight_weight - 0.025 * shadow_weight\n                g_graded = normalize_scurve(g) + 0.010 * highlight_weight\n                b_graded = normalize_scurve(b) + 0.040 * shadow_weight - 0.020 * highlight_weight\n\n                r_out = max(0.0, min(1.0, r_graded))\n                g_out = max(0.0, min(1.0, g_graded))\n                b_out = max(0.0, min(1.0, b_graded))\n                lines.append(f\"{r_out:.6f} {g_out:.6f} {b_out:.6f}\")\n\n    out_path.write_text(\"\\n\".join(lines) + \"\\n\", encoding=\"utf-8\")\n    print(f\"  + [OK] Đã tạo file 3D LUT chuẩn rạp tại: {out_path.resolve()}\")\n\n\nif __name__ == \"__main__\":\n    build_kodak_2383_lut(LUT_PATH)\n", "scripts/master_dci2k_nvenc.ps1": "param (\n    [string]$InputVideo = \".\\out\\remotion_raw_2048x1080.mp4\",\n    [string]$LutFile = \".\\luts\\kodak_2383_cinema.cube\",\n    [string]$OutputVideo = \".\\out\\final_cinema_dci2k_24fps.mp4\"\n)\n\nWrite-Host \"=================================================================\" -ForegroundColor Cyan\nWrite-Host \" MASTERING PHIM CHUẨN RẠP DCI 2K (2048x1080 @ 24fps) - NVENC\" -ForegroundColor Cyan\nWrite-Host \" GPU: NVIDIA Quadro P2000 (4GB) | CPU: Intel Xeon E-2176M\" -ForegroundColor Cyan\nWrite-Host \"=================================================================\" -ForegroundColor Cyan\n\nif (-not (Test-Path $LutFile)) {\n    python .\\scripts\\generate_kodak2383_lut.py\n}\n\nffmpeg -y -hwaccel cuda -i $InputVideo `\n    -vf \"scale=2048:1080:flags=lanczos,cas=0.4,lut3d=file='$LutFile',noise=c0s=4:c0f=t+u\" `\n    -r 24 `\n    -c:v h264_nvenc `\n    -preset p6 `\n    -tune hq `\n    -rc vbr `\n    -cq 17 `\n    -b:v 25M `\n    -maxrate 35M `\n    -bufsize 50M `\n    -pix_fmt yuv420p `\n    -c:a aac -b:a 320k `\n    $OutputVideo\n\nWrite-Host \"[HOÀN TẤT] Video DCI 2K đã xuất tại: $OutputVideo\" -ForegroundColor Green\n", "package.json": "{\n  \"name\": \"video3dremotion-monorepo\",\n  \"private\": true,\n  \"version\": \"3.0.0\",\n  \"description\": \"High-Speed AI Director & 3D Cinematic Video-by-Code Studio (DCI 2K 2048x1080 @ 24fps)\",\n  \"scripts\": {\n    \"studio:web\": \"uvicorn backend.main:app --reload --port 8000\",\n    \"studio:remotion\": \"cd renderer && npx remotion studio src/index.ts\",\n    \"render:dci2k\": \"cd renderer && npx remotion render src/index.ts Video3DRemotionCinema ../out/remotion_raw_2048x1080.mp4 --concurrency=3 --gl=angle\"\n  }\n}\n", "start_app.bat": "@echo off\ntitle video3dremotion — DCI 2K Cinema Studio\necho ============================================================================\necho   KHOI DONG VIDEO3DREMOTION STUDIO (DCI 2K 2048x1080 @ 24FPS)\necho   Toi uu cho Dell Precision 7530 (Xeon E-2176M + NVIDIA Quadro P2000 4GB)\necho ============================================================================\n\nif not exist \"luts\\kodak_2383_cinema.cube\" (\n    python scripts\\generate_kodak2383_lut.py\n)\n\nstart \"\" \"studio_ui\\video3dremotion_studio.html\"\npython -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload\npause\n", "backend/services/shot_cache.py": "import hashlib\nimport json\nimport pathlib\nfrom backend.models import ShotItem\n\nCACHE_DIR = pathlib.Path(\"./out/shot_cache\")\nCACHE_DIR.mkdir(parents=True, exist_ok=True)\n\n\nclass ShotCacheManager:\n    \"\"\"\n    Bộ nhớ đệm theo từng Cảnh quay (Shot-Level Content-Addressable Cache).\n    Nếu 1 cảnh không thay đổi video gốc, lời dẫn, chữ 3D hay chuyển động máy,\n    hệ thống lấy ngay kết quả đã render từ ổ SSD trong 0.01 giây mà không cần render lại!\n    \"\"\"\n\n    @staticmethod\n    def compute_shot_hash(shot: ShotItem, lut_file: str, aspect_crop: str) -> str:\n        payload = {\n            \"shot_id\": shot.shot_id,\n            \"duration\": shot.duration_seconds,\n            \"raw_video\": shot.raw_video_path or \"\",\n            \"voiceover\": shot.voiceover_path or \"\",\n            \"title\": shot.title_overlay or \"\",\n            \"narration\": shot.narration_text or \"\",\n            \"lens\": shot.camera.focal_length,\n            \"motion\": shot.camera.camera_motion,\n            \"particle\": shot.particle_preset,\n            \"lut\": lut_file,\n            \"aspect\": aspect_crop,\n        }\n        raw_bytes = json.dumps(payload, sort_keys=True, ensure_ascii=False).encode(\"utf-8\")\n        return hashlib.sha256(raw_bytes).hexdigest()[:16]\n\n    @staticmethod\n    def get_cached_segment(shot: ShotItem, lut_file: str, aspect_crop: str) -> pathlib.Path:\n        digest = ShotCacheManager.compute_shot_hash(shot, lut_file, aspect_crop)\n        return CACHE_DIR / f\"{shot.shot_id}_{digest}.mp4\"\n\n    @staticmethod\n    def is_cached(shot: ShotItem, lut_file: str, aspect_crop: str) -> bool:\n        target = ShotCacheManager.get_cached_segment(shot, lut_file, aspect_crop)\n        return target.exists() and target.stat().st_size > 0\n", "studio_ui/video3dremotion_studio.html": "<!DOCTYPE html>\n<html lang=\"vi\">\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <title>video3dremotion Studio — Tạo Phim Điện Ảnh DCI 2K Tự Động</title>\n  <style>\n    :root {\n      --bg-main: #090b10;\n      --bg-surface: #11151f;\n      --bg-elevated: #181e2c;\n      --bg-glass: rgba(24, 30, 44, 0.78);\n      --border: rgba(255, 255, 255, 0.08);\n      --border-focus: #f59e0b;\n      --primary: #f59e0b;\n      --primary-hover: #fbbf24;\n      --accent: #06b6d4;\n      --success: #10b981;\n      --danger: #ef4444;\n      --text: #f8fafc;\n      --text-secondary: #94a3b8;\n      --radius-lg: 14px;\n      --radius-md: 10px;\n      --radius-sm: 7px;\n    }\n\n    * { box-sizing: border-box; margin: 0; padding: 0; }\n    body {\n      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;\n      background-color: var(--bg-main);\n      color: var(--text);\n      min-height: 100vh;\n      display: flex;\n      flex-direction: column;\n      overflow-x: hidden;\n    }\n\n    /* Top Navigation Bar */\n    .navbar {\n      height: 64px;\n      background: rgba(17, 21, 31, 0.9);\n      backdrop-filter: blur(12px);\n      border-bottom: 1px solid var(--border);\n      padding: 0 28px;\n      display: flex;\n      align-items: center;\n      justify-content: space-between;\n      position: sticky;\n      top: 0;\n      z-index: 50;\n    }\n    .brand {\n      display: flex;\n      align-items: center;\n      gap: 12px;\n    }\n    .brand-logo {\n      width: 34px;\n      height: 34px;\n      border-radius: 9px;\n      background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      font-weight: 900;\n      color: #000;\n      font-size: 15px;\n      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);\n    }\n    .brand-title {\n      font-size: 16px;\n      font-weight: 700;\n      letter-spacing: -0.2px;\n    }\n    .brand-sub {\n      font-size: 11.5px;\n      color: var(--text-secondary);\n      margin-left: 4px;\n      padding: 2px 8px;\n      background: var(--bg-elevated);\n      border-radius: 99px;\n      border: 1px solid var(--border);\n    }\n\n    /* Stepper Pills in Center of Navbar */\n    .workflow-steps {\n      display: flex;\n      align-items: center;\n      gap: 6px;\n      background: var(--bg-surface);\n      padding: 5px;\n      border-radius: 99px;\n      border: 1px solid var(--border);\n    }\n    .wf-step {\n      padding: 6px 14px;\n      border-radius: 99px;\n      font-size: 12.5px;\n      font-weight: 600;\n      color: var(--text-secondary);\n      display: flex;\n      align-items: center;\n      gap: 6px;\n      transition: all 0.2s;\n      cursor: pointer;\n    }\n    .wf-step.active {\n      background: var(--bg-elevated);\n      color: var(--text);\n      box-shadow: 0 2px 8px rgba(0,0,0,0.3);\n    }\n    .wf-step.active .dot { background: var(--primary); }\n    .wf-step.done { color: var(--success); }\n    .wf-step.done .dot { background: var(--success); }\n    .dot {\n      width: 7px;\n      height: 7px;\n      border-radius: 50%;\n      background: var(--text-secondary);\n    }\n\n    .nav-actions {\n      display: flex;\n      align-items: center;\n      gap: 10px;\n    }\n    .credit-pill {\n      background: var(--bg-elevated);\n      border: 1px solid var(--border);\n      padding: 6px 12px;\n      border-radius: 99px;\n      font-size: 12.5px;\n      display: flex;\n      align-items: center;\n      gap: 6px;\n    }\n    .credit-pill strong { color: var(--primary); }\n\n    /* Buttons */\n    .btn {\n      cursor: pointer;\n      border: none;\n      border-radius: var(--radius-sm);\n      padding: 9px 16px;\n      font-weight: 600;\n      font-size: 13px;\n      display: inline-flex;\n      align-items: center;\n      justify-content: center;\n      gap: 7px;\n      transition: all 0.16s ease;\n      text-decoration: none;\n    }\n    .btn-primary {\n      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);\n      color: #090b10;\n      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);\n    }\n    .btn-primary:hover { transform: translateY(-1px); filter: brightness(1.08); }\n    .btn-accent {\n      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);\n      color: #fff;\n    }\n    .btn-success {\n      background: linear-gradient(135deg, #10b981 0%, #059669 100%);\n      color: #fff;\n      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);\n    }\n    .btn-ghost {\n      background: var(--bg-elevated);\n      color: var(--text);\n      border: 1px solid var(--border);\n    }\n    .btn-ghost:hover { border-color: rgba(255,255,255,0.22); }\n    .btn-sm { padding: 6px 11px; font-size: 12px; }\n\n    /* Main Workspace Layout */\n    .workspace {\n      display: grid;\n      grid-template-columns: 380px 1fr;\n      gap: 22px;\n      padding: 22px 28px;\n      max-width: 1680px;\n      width: 100%;\n      margin: 0 auto;\n      flex: 1;\n    }\n    @media (max-width: 1120px) {\n      .workspace { grid-template-columns: 1fr; }\n      .workflow-steps { display: none; }\n    }\n\n    /* Left Sidebar: Idea & Essential Settings */\n    .sidebar {\n      display: flex;\n      flex-direction: column;\n      gap: 18px;\n    }\n    .card {\n      background: var(--bg-surface);\n      border: 1px solid var(--border);\n      border-radius: var(--radius-lg);\n      padding: 18px;\n      display: flex;\n      flex-direction: column;\n      gap: 14px;\n    }\n    .card-header {\n      display: flex;\n      justify-content: space-between;\n      align-items: center;\n    }\n    .card-title {\n      font-size: 13.5px;\n      font-weight: 700;\n      color: var(--text);\n      display: flex;\n      align-items: center;\n      gap: 8px;\n    }\n    .badge {\n      font-size: 11px;\n      padding: 2px 8px;\n      border-radius: 99px;\n      font-weight: 600;\n      background: rgba(245, 158, 11, 0.15);\n      color: var(--primary);\n    }\n\n    label.field-label {\n      font-size: 12px;\n      color: var(--text-secondary);\n      font-weight: 500;\n      margin-bottom: 4px;\n      display: block;\n    }\n    textarea.prompt-box {\n      width: 100%;\n      min-height: 104px;\n      background: var(--bg-elevated);\n      border: 1px solid var(--border);\n      border-radius: var(--radius-md);\n      padding: 12px;\n      color: var(--text);\n      font-size: 13.5px;\n      line-height: 1.5;\n      resize: vertical;\n      outline: none;\n      transition: border-color 0.2s;\n    }\n    textarea.prompt-box:focus { border-color: var(--primary); }\n\n    .settings-grid {\n      display: grid;\n      grid-template-columns: 1fr 1fr;\n      gap: 10px;\n    }\n    select.clean-select, input.clean-input {\n      width: 100%;\n      background: var(--bg-elevated);\n      border: 1px solid var(--border);\n      color: var(--text);\n      padding: 8px 10px;\n      border-radius: var(--radius-sm);\n      font-size: 12.5px;\n      outline: none;\n    }\n    select.clean-select:focus, input.clean-input:focus { border-color: var(--primary); }\n\n    .toggle-row {\n      display: flex;\n      justify-content: space-between;\n      align-items: center;\n      font-size: 12.5px;\n      color: var(--text-secondary);\n      padding-top: 4px;\n    }\n    .toggle-row input[type=\"checkbox\"] {\n      accent-color: var(--primary);\n      width: 16px;\n      height: 16px;\n      cursor: pointer;\n    }\n\n    /* Right Content Area: Cinema Monitor + Storyboard Cards */\n    .stage-area {\n      display: flex;\n      flex-direction: column;\n      gap: 20px;\n    }\n\n    /* Cinema Preview Player */\n    .player-card {\n      background: var(--bg-surface);\n      border: 1px solid var(--border);\n      border-radius: var(--radius-lg);\n      padding: 16px;\n      display: flex;\n      flex-direction: column;\n      gap: 12px;\n    }\n    .cinema-viewport {\n      position: relative;\n      width: 100%;\n      aspect-ratio: 2048 / 1080;\n      background: #000;\n      border-radius: var(--radius-md);\n      overflow: hidden;\n      border: 1px solid rgba(255,255,255,0.1);\n      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);\n    }\n    canvas#cinemaCanvas {\n      width: 100%;\n      height: 100%;\n      display: block;\n    }\n    .viewport-overlay-top {\n      position: absolute;\n      top: 12px;\n      left: 16px;\n      right: 16px;\n      display: flex;\n      justify-content: space-between;\n      pointer-events: none;\n      font-size: 11.5px;\n      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;\n      color: rgba(255, 255, 255, 0.75);\n      z-index: 10;\n    }\n    .player-controls {\n      display: flex;\n      align-items: center;\n      justify-content: space-between;\n      gap: 12px;\n      flex-wrap: wrap;\n    }\n    .timeline-bar {\n      display: flex;\n      flex: 1;\n      height: 8px;\n      background: var(--bg-elevated);\n      border-radius: 99px;\n      overflow: hidden;\n      gap: 3px;\n      cursor: pointer;\n    }\n    .timeline-segment {\n      flex: 1;\n      background: rgba(255, 255, 255, 0.16);\n      transition: background 0.2s;\n    }\n    .timeline-segment.active { background: var(--primary); }\n    .timeline-segment.approved { background: var(--success); }\n\n    /* Shots Grid */\n    .shots-header {\n      display: flex;\n      justify-content: space-between;\n      align-items: center;\n      flex-wrap: wrap;\n      gap: 10px;\n    }\n    .shots-grid {\n      display: grid;\n      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));\n      gap: 14px;\n    }\n    .shot-card {\n      background: var(--bg-surface);\n      border: 1px solid var(--border);\n      border-radius: var(--radius-md);\n      overflow: hidden;\n      display: flex;\n      flex-direction: column;\n      transition: all 0.18s ease;\n      cursor: pointer;\n    }\n    .shot-card:hover { border-color: rgba(255, 255, 255, 0.22); transform: translateY(-2px); }\n    .shot-card.selected { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }\n    .shot-card.approved { border-color: var(--success); }\n\n    .shot-thumb {\n      height: 118px;\n      position: relative;\n      display: flex;\n      align-items: flex-end;\n      padding: 10px;\n      background-size: cover;\n      border-bottom: 1px solid var(--border);\n    }\n    .shot-status-tag {\n      position: absolute;\n      top: 8px;\n      right: 8px;\n      font-size: 10.5px;\n      font-weight: 700;\n      padding: 3px 8px;\n      border-radius: 99px;\n      backdrop-filter: blur(8px);\n    }\n    .tag-free { background: rgba(6, 182, 212, 0.25); color: #7dd3fc; border: 1px solid rgba(6,182,212,0.4); }\n    .tag-veo { background: rgba(245, 158, 11, 0.25); color: #fde68a; border: 1px solid rgba(245,158,11,0.4); }\n    .tag-done { background: rgba(16, 185, 129, 0.25); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.4); }\n\n    .shot-body {\n      padding: 12px;\n      display: flex;\n      flex-direction: column;\n      gap: 8px;\n      flex: 1;\n    }\n    .shot-meta {\n      display: flex;\n      justify-content: space-between;\n      font-size: 11.5px;\n      color: var(--text-secondary);\n    }\n    .shot-desc {\n      font-size: 12.5px;\n      color: var(--text);\n      line-height: 1.45;\n    }\n    .shot-narration-input {\n      width: 100%;\n      background: var(--bg-elevated);\n      border: 1px solid var(--border);\n      border-radius: 6px;\n      padding: 6px 8px;\n      color: #cbd5e1;\n      font-size: 12px;\n      font-style: italic;\n    }\n    .shot-footer {\n      padding: 10px 12px;\n      border-top: 1px solid var(--border);\n      display: flex;\n      gap: 6px;\n      background: rgba(0, 0, 0, 0.2);\n    }\n\n    /* GitHub & System Modal */\n    .modal-backdrop {\n      position: fixed;\n      inset: 0;\n      background: rgba(0, 0, 0, 0.72);\n      backdrop-filter: blur(6px);\n      display: none;\n      align-items: center;\n      justify-content: center;\n      z-index: 100;\n      padding: 20px;\n    }\n    .modal-backdrop.open { display: flex; }\n    .modal {\n      background: var(--bg-surface);\n      border: 1px solid rgba(255, 255, 255, 0.14);\n      border-radius: var(--radius-lg);\n      max-width: 620px;\n      width: 100%;\n      padding: 24px;\n      display: flex;\n      flex-direction: column;\n      gap: 16px;\n      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.85);\n    }\n    .modal-header {\n      display: flex;\n      justify-content: space-between;\n      align-items: center;\n    }\n    .status-toast {\n      font-size: 12.5px;\n      padding: 10px 14px;\n      border-radius: var(--radius-sm);\n      background: var(--bg-elevated);\n      border: 1px solid var(--border);\n      color: var(--text-secondary);\n      white-space: pre-wrap;\n      max-height: 160px;\n      overflow-y: auto;\n      font-family: ui-monospace, Consolas, monospace;\n    }\n  </style>\n</head>\n<body>\n\n  <!-- Thanh Điều Hướng Gọn Đẹp -->\n  <nav class=\"navbar\">\n    <div class=\"brand\">\n      <div class=\"brand-logo\">2K</div>\n      <div>\n        <span class=\"brand-title\">video3dremotion</span>\n        <span class=\"brand-sub\">DCI 2K Cinema Studio</span>\n      </div>\n    </div>\n\n    <div class=\"workflow-steps\">\n      <div class=\"wf-step active\" id=\"navStep1\" onclick=\"jumpToStep(1)\">\n        <span class=\"dot\"></span> 1. Kịch bản & Cài đặt\n      </div>\n      <div class=\"wf-step\" id=\"navStep2\" onclick=\"jumpToStep(2)\">\n        <span class=\"dot\"></span> 2. Duyệt Ảnh (0 Credit)\n      </div>\n      <div class=\"wf-step\" id=\"navStep3\" onclick=\"jumpToStep(3)\">\n        <span class=\"dot\"></span> 3. Duyệt Cảnh Veo 3\n      </div>\n      <div class=\"wf-step\" id=\"navStep4\" onclick=\"jumpToStep(4)\">\n        <span class=\"dot\"></span> 4. Xuất Phim 2K NVENC\n      </div>\n    </div>\n\n    <div class=\"nav-actions\">\n      <div class=\"credit-pill\" title=\"Số dư Google Labs Flow hàng tháng của bạn\">\n        ⚡ Flow Credits: <strong id=\"creditDisplay\">1000</strong>\n      </div>\n      <button class=\"btn btn-success btn-sm\" onclick=\"openGitHubModal()\">\n        ☁️ Cập Nhật Lên GitHub\n      </button>\n    </div>\n  </nav>\n\n  <!-- Không Gian Làm Việc Chính (2 Cột Trực Quan) -->\n  <div class=\"workspace\">\n\n    <!-- CỘT TRÁI: Ý Tưởng & Các Cài Đặt Cần Thiết -->\n    <aside class=\"sidebar\">\n      <div class=\"card\">\n        <div class=\"card-header\">\n          <span class=\"card-title\">✨ 1. Mô Tả Ý Tưởng Video</span>\n          <span class=\"badge\">AI Director</span>\n        </div>\n        <div>\n          <label class=\"field-label\">Nhập nội dung bạn muốn làm phim (Tiếng Việt):</label>\n          <textarea id=\"promptInput\" class=\"prompt-box\" placeholder=\"Mô tả ý tưởng video của bạn...\">Trailer điện ảnh giới thiệu cà phê đặc sản vùng cao nguyên Việt Nam dưới ánh bình minh xuyên qua làn sương mù, góc máy Anamorphic sâu thẳm và chữ 3D sang trọng.</textarea>\n        </div>\n        <button class=\"btn btn-primary\" style=\"width: 100%;\" onclick=\"generateStoryboardStep()\">\n          🎬 Phân Tích & Chia Cảnh Storyboard (0 Credit)\n        </button>\n      </div>\n\n      <!-- Chỉ giữ lại các cài đặt thực sự cần thiết, gọn gàng -->\n      <div class=\"card\">\n        <div class=\"card-header\">\n          <span class=\"card-title\">⚙️ 2. Cài Đặt Điện Ảnh Cần Thiết</span>\n        </div>\n\n        <div class=\"settings-grid\">\n          <div>\n            <label class=\"field-label\">Khung hình chuẩn rạp</label>\n            <select id=\"aspectSelect\" class=\"clean-select\" onchange=\"updateSettings()\">\n              <option value=\"2.39:1\" selected>CinemaScope 2.39:1 (Rạp)</option>\n              <option value=\"1.90:1\">DCI 2K 1.90:1 (Toàn khung)</option>\n            </select>\n          </div>\n          <div>\n            <label class=\"field-label\">Bảng màu phim (3D LUT)</label>\n            <select id=\"lutSelect\" class=\"clean-select\" onchange=\"updateSettings()\">\n              <option value=\"kodak2383\" selected>Kodak 2383 (Ấm cổ điển)</option>\n              <option value=\"tealorange\">Teal & Orange (Bom tấn)</option>\n              <option value=\"eterna\">Fujifilm Eterna (Dịu nhẹ)</option>\n            </select>\n          </div>\n          <div>\n            <label class=\"field-label\">Mô hình sinh cảnh (Flow)</label>\n            <select id=\"veoTierSelect\" class=\"clean-select\">\n              <option value=\"20\" selected>Veo 3 Fast (20 Cr/cảnh)</option>\n              <option value=\"10\">Veo 3.1 Lite (10 Cr/cảnh)</option>\n            </select>\n          </div>\n          <div>\n            <label class=\"field-label\">Hiệu ứng hạt không gian 3D</label>\n            <select id=\"particleSelect\" class=\"clean-select\" onchange=\"updateSettings()\">\n              <option value=\"warm_dust\" selected>Bụi sáng nắng sớm</option>\n              <option value=\"mist\">Sương mù chiều sâu</option>\n              <option value=\"embers\">Tia lửa ấm áp</option>\n              <option value=\"none\">Tắt hạt 3D</option>\n            </select>\n          </div>\n        </div>\n\n        <div class=\"toggle-row\">\n          <span>Chuyển âm thanh sớm (J-Cut 0.5s)</span>\n          <input type=\"checkbox\" id=\"jcutToggle\" checked />\n        </div>\n        <div class=\"toggle-row\">\n          <span>Tăng tốc phần cứng Quadro P2000 (NVENC)</span>\n          <input type=\"checkbox\" id=\"nvencToggle\" checked />\n        </div>\n      </div>\n\n      <!-- Khung Bấm Duyệt Chuyển Giai Đoạn Nhanh -->\n      <div class=\"card\">\n        <div class=\"card-header\">\n          <span class=\"card-title\">🚀 3. Duyệt & Xuất Phim</span>\n        </div>\n        <button class=\"btn btn-accent\" style=\"width: 100%;\" onclick=\"approveAllStoryboards()\">\n          ✅ Duyệt Ảnh Storyboard ➔ Tạo Clip Veo 3\n        </button>\n        <button class=\"btn btn-success\" style=\"width: 100%;\" onclick=\"exportFinalMovie()\">\n          🎞️ Duyệt Tất Cả Cảnh ➔ Xuất Phim DCI 2K\n        </button>\n        <div class=\"status-toast\" id=\"quickStatusBox\">Sẵn sàng. Mọi thao tác tạo & sửa ảnh Storyboard đều tốn 0 Credit.</div>\n      </div>\n    </aside>\n\n    <!-- CỘT PHẢI: Màn Hình Xem Thử Chuẩn Rạp & Danh Sách Cảnh Quay -->\n    <main class=\"stage-area\">\n      <div class=\"player-card\">\n        <div class=\"cinema-viewport\">\n          <div class=\"viewport-overlay-top\">\n            <span id=\"hudSpec\">DCI 2K (2048×1080) • 24 FPS • SHUTTER 180°</span>\n            <span id=\"hudShotInfo\">CẢNH 01/04 • 24mm ANAMORPHIC f/2.8</span>\n          </div>\n          <canvas id=\"cinemaCanvas\" width=\"1024\" height=\"540\"></canvas>\n        </div>\n\n        <div class=\"player-controls\">\n          <button class=\"btn btn-primary btn-sm\" id=\"playPauseBtn\" onclick=\"togglePlayback()\">\n            ⏸ Tạm Dừng\n          </button>\n          <div class=\"timeline-bar\" id=\"timelineSegments\"></div>\n          <span style=\"font-size: 12px; color: var(--text-secondary);\" id=\"timecodeText\">00:00 / 00:18</span>\n        </div>\n      </div>\n\n      <div class=\"shots-header\">\n        <div>\n          <h2 style=\"font-size: 15px; font-weight: 700;\">Danh Sách Phân Cảnh (Click vào cảnh để xem thử & chỉnh sửa)</h2>\n          <p style=\"font-size: 12px; color: var(--text-secondary);\">Bạn có thể sửa trực tiếp lời bình hoặc bấm tạo lại từng cảnh riêng lẻ</p>\n        </div>\n        <button class=\"btn btn-ghost btn-sm\" onclick=\"addNewShot()\">+ Thêm Cảnh Quay</button>\n      </div>\n\n      <div class=\"shots-grid\" id=\"shotsGrid\"></div>\n    </main>\n  </div>\n\n  <!-- HỘP THOẠI ĐỒNG BỘ LÊN GITHUB (1-CLICK DEPLOY MODAL) -->\n  <div class=\"modal-backdrop\" id=\"githubModal\">\n    <div class=\"modal\">\n      <div class=\"modal-header\">\n        <h3 style=\"font-size: 16px; font-weight: 700;\">☁️ Đồng Bộ Toàn Bộ Dự Án Lên GitHub (`video3dremotion`)</h3>\n        <button class=\"btn btn-ghost btn-sm\" onclick=\"closeGitHubModal()\">✕ Đóng</button>\n      </div>\n      <p style=\"font-size: 13px; color: var(--text-secondary); line-height: 1.5;\">\n        Đẩy trọn bộ <strong>25 file mã nguồn hoàn chỉnh</strong> (gồm Backend FastAPI + Shot Hash Cache, LangGraph Multi-Agent, Google Flow Bridge, Remotion 3D + Three.js DCI 2K, 3D LUT Kodak 2383 và giao diện Studio mới này) lên tài khoản GitHub của bạn.\n      </p>\n\n      <div style=\"display: flex; gap: 8px; flex-wrap: wrap;\">\n        <a href=\"https://github.com/settings/tokens/new?description=video3dremotion-studio&scopes=repo\" target=\"_blank\" class=\"btn btn-ghost btn-sm\" style=\"border-color: var(--primary); color: var(--primary);\">\n          🔑 Bước 1: Bấm lấy Token Classic (Đã tích sẵn quyền repo)\n        </a>\n        <a href=\"https://github.com/new?name=video3dremotion&visibility=public\" target=\"_blank\" class=\"btn btn-ghost btn-sm\">\n          ➕ Tạo sẵn vỏ Repo (Tùy chọn)\n        </a>\n      </div>\n\n      <div>\n        <label class=\"field-label\">Mã GitHub Personal Access Token của bạn:</label>\n        <input type=\"text\" id=\"ghTokenInput\" class=\"clean-input\" value=\"\" style=\"font-family: monospace; padding: 10px;\" />\n      </div>\n\n      <button class=\"btn btn-success\" id=\"btnDeployNow\" onclick=\"pushAllFilesToGitHubFromBrowser()\">\n        🚀 Bước 2: Tạo Repo &amp; Cập Nhật Toàn Bộ 25 File Lên GitHub Ngay\n      </button>\n\n      <div class=\"status-toast\" id=\"ghModalLog\">Sẵn sàng kết nối api.github.com...</div>\n    </div>\n  </div>\n\n  <script>\n    const REPO_FILES_BUNDLE = {};\n\n    let credits = 1000;\n    let isPlaying = true;\n    let activeShotIdx = 0;\n    let frame = 0;\n    let settings = {\n      aspect: \"2.39:1\",\n      lut: \"kodak2383\",\n      particle: \"warm_dust\"\n    };\n\n    let shots = [\n      {\n        id: \"shot_01\",\n        order: 1,\n        duration: 4.5,\n        status: \"STORYBOARD_READY\",\n        title: \"KHỞI NGUỒN ĐẠI NGÀN\",\n        narration: \"Giữa không gian mênh mông của bình minh, mỗi hạt cà phê bắt đầu từ sương sớm.\",\n        synopsis: \"Đại cảnh sương mù buổi sớm trên cao nguyên, tia nắng vàng xuyên qua tán rừng.\",\n        lens: \"24mm Anamorphic f/2.8\",\n        motion: \"Slow Aerial Push-In\",\n        colors: [\"#0b132b\", \"#1c2541\", \"#f59e0b\"]\n      },\n      {\n        id: \"shot_02\",\n        order: 2,\n        duration: 4.0,\n        status: \"STORYBOARD_READY\",\n        title: \"CHIỀU SÂU QUANG HỌC\",\n        narration: \"Từng giọt sương rơi chậm rãi, phản chiếu ánh sáng nguyên bản của đất trời.\",\n        synopsis: \"Cận cảnh Macro giọt sương trên lá cà phê, hậu cảnh xoá phông Bokeh hình elip.\",\n        lens: \"85mm Anamorphic Macro f/1.4\",\n        motion: \"Macro Parallax Slider\",\n        colors: [\"#081c15\", \"#1b4332\", \"#fbbf24\"]\n      },\n      {\n        id: \"shot_03\",\n        order: 3,\n        duration: 5.0,\n        status: \"STORYBOARD_READY\",\n        title: \"NGHỆ THUẬT LỬA & HƯƠNG\",\n        narration: \"Khi nhiệt độ chạm đến đỉnh cao, hương thơm thức tỉnh mọi giác quan.\",\n        synopsis: \"Góc máy thấp hất lên: Hạt cà phê rang chuyển màu nâu óng giữa các tia lửa ấm áp.\",\n        lens: \"35mm Anamorphic f/1.8\",\n        motion: \"Dynamic Low-Angle Orbit\",\n        colors: [\"#1f0d07\", \"#7c2d12\", \"#fb923c\"]\n      },\n      {\n        id: \"shot_04\",\n        order: 4,\n        duration: 4.5,\n        status: \"STORYBOARD_READY\",\n        title: \"DẤU ẤN VƯỢT THỜI GIAN\",\n        narration: \"Một tuyệt tác điện ảnh trong từng giọt thưởng thức.\",\n        synopsis: \"Bố cục đối xứng: Tách espresso bốc khói nhẹ giữa bàn gỗ tối màu, ánh sáng ven sang trọng.\",\n        lens: \"50mm Anamorphic f/2.0\",\n        motion: \"Slow Crane Pull-Back\",\n        colors: [\"#090d16\", \"#1e293b\", \"#f8fafc\"]\n      }\n    ];\n\n    const particles = Array.from({ length: 75 }, (_, i) => ({\n      x: (Math.sin(i * 12.9898) * 0.5 + 0.5) * 1024,\n      y: (Math.cos(i * 78.233) * 0.5 + 0.5) * 540,\n      r: (i % 3) + 1.2,\n      vy: -0.22 - (i % 4) * 0.1,\n      vx: Math.sin(i) * 0.18,\n      a: 0.25 + (i % 5) * 0.1\n    }));\n\n    function updateSettings() {\n      settings.aspect = document.getElementById(\"aspectSelect\").value;\n      settings.lut = document.getElementById(\"lutSelect\").value;\n      settings.particle = document.getElementById(\"particleSelect\").value;\n      document.getElementById(\"hudSpec\").textContent =\n        `DCI 2K (2048×1080) • ${settings.aspect} • 24 FPS • LUT: ${settings.lut.toUpperCase()}`;\n    }\n\n    function setWorkflowStep(stepNum) {\n      for (let i = 1; i <= 4; i++) {\n        const el = document.getElementById(\"navStep\" + i);\n        el.className = \"wf-step\" + (i < stepNum ? \" done\" : i === stepNum ? \" active\" : \"\");\n      }\n    }\n\n    function jumpToStep(stepNum) {\n      setWorkflowStep(stepNum);\n    }\n\n    function renderUI() {\n      // Timeline segments\n      const tl = document.getElementById(\"timelineSegments\");\n      tl.innerHTML = shots.map((s, idx) => `\n        <div class=\"timeline-segment ${idx === activeShotIdx ? 'active' : ''} ${s.status === 'VIDEO_APPROVED' ? 'approved' : ''}\"\n             onclick=\"selectShot(${idx})\" title=\"Cảnh 0${s.order}: ${s.title}\"></div>\n      `).join(\"\");\n\n      // Shot cards\n      const grid = document.getElementById(\"shotsGrid\");\n      grid.innerHTML = shots.map((s, idx) => {\n        let tagClass = \"tag-free\";\n        let tagText = \"Ảnh Storyboard (0 Cr)\";\n        if (s.status === \"VIDEO_READY\") { tagClass = \"tag-veo\"; tagText = \"Clip Veo 3 Sẵn Sàng\"; }\n        if (s.status === \"VIDEO_APPROVED\") { tagClass = \"tag-done\"; tagText = \"Đã Duyệt Xuất Phim ✓\"; }\n\n        const bgGrad = `linear-gradient(135deg, ${s.colors[0]} 0%, ${s.colors[1]} 65%, ${s.colors[2]} 100%)`;\n\n        return `\n          <div class=\"shot-card ${idx === activeShotIdx ? 'selected' : ''} ${s.status === 'VIDEO_APPROVED' ? 'approved' : ''}\"\n               onclick=\"selectShot(${idx})\">\n            <div class=\"shot-thumb\" style=\"background: ${bgGrad};\">\n              <span class=\"shot-status-tag ${tagClass}\">${tagText}</span>\n              <div style=\"font-size: 12px; font-weight: 700; letter-spacing: 1.5px; color: #fff; text-shadow: 0 2px 8px #000;\">\n                0${s.order} • ${s.title}\n              </div>\n            </div>\n            <div class=\"shot-body\">\n              <div class=\"shot-meta\">\n                <span>📷 ${s.lens}</span>\n                <span>⏱️ ${s.duration.toFixed(1)}s</span>\n              </div>\n              <div class=\"shot-desc\">${s.synopsis}</div>\n              <input class=\"shot-narration-input\" value=\"${s.narration}\"\n                     onclick=\"event.stopPropagation()\"\n                     onchange=\"updateNarration(${idx}, this.value)\"\n                     title=\"Chỉnh sửa trực tiếp lời dẫn chuyện của cảnh này\" />\n            </div>\n            <div class=\"shot-footer\">\n              <button class=\"btn btn-ghost btn-sm\" style=\"flex:1;\" onclick=\"event.stopPropagation(); rerollShotFrame(${idx})\">\n                🔄 Đổi Ảnh (0 Cr)\n              </button>\n              <button class=\"btn btn-ghost btn-sm\" style=\"flex:1;\" onclick=\"event.stopPropagation(); rerollShotVideo(${idx})\">\n                🎬 Quay Lại Veo 3\n              </button>\n            </div>\n          </div>\n        `;\n      }).join(\"\");\n\n      const totalSec = shots.reduce((acc, x) => acc + x.duration, 0);\n      const s = shots[activeShotIdx];\n      document.getElementById(\"hudShotInfo\").textContent =\n        `CẢNH 0${s.order}/0${shots.length} • ${s.lens.toUpperCase()} • ${s.motion.toUpperCase()}`;\n      document.getElementById(\"timecodeText\").textContent =\n        `Cảnh 0${s.order} (${s.duration.toFixed(1)}s) / Tổng ${totalSec.toFixed(1)}s`;\n    }\n\n    function selectShot(idx) {\n      activeShotIdx = idx;\n      renderUI();\n    }\n\n    function updateNarration(idx, val) {\n      shots[idx].narration = val;\n    }\n\n    function generateStoryboardStep() {\n      const prompt = document.getElementById(\"promptInput\").value.trim();\n      if (!prompt) return;\n      shots[0].synopsis = `[Đại cảnh mở đầu] ${prompt.slice(0, 92)}...`;\n      shots.forEach(s => s.status = \"STORYBOARD_READY\");\n      setWorkflowStep(2);\n      renderUI();\n      document.getElementById(\"quickStatusBox\").textContent =\n        `✓ Đã lên kịch bản ${shots.length} cảnh quay & tạo 4 ảnh Storyboard bằng Nano Banana 2 (Tốn 0 Credit). Hãy kiểm tra và bấm Duyệt!`;\n    }\n\n    function rerollShotFrame(idx) {\n      const note = prompt(\"Nhập điểm muốn thay đổi ở bức ảnh phân cảnh này (Tốn 0 Credit):\", \"Đổi góc máy thấp hơn và thêm tia nắng rõ hơn\");\n      if (!note) return;\n      shots[idx].synopsis += ` (${note})`;\n      shots[idx].status = \"STORYBOARD_READY\";\n      selectShot(idx);\n      document.getElementById(\"quickStatusBox\").textContent =\n        `✓ Đã tạo lại ảnh Storyboard cho Cảnh 0${shots[idx].order} (Chi phí: 0 Credit).`;\n    }\n\n    function approveAllStoryboards() {\n      const tierCost = parseInt(document.getElementById(\"veoTierSelect\").value, 10) || 20;\n      const totalCost = shots.length * tierCost;\n      credits = Math.max(0, credits - totalCost);\n      document.getElementById(\"creditDisplay\").textContent = credits;\n      shots.forEach(s => s.status = \"VIDEO_READY\");\n      setWorkflowStep(3);\n      renderUI();\n      document.getElementById(\"quickStatusBox\").textContent =\n        `✓ Đã duyệt Storyboard & gọi Veo 3 (Image-to-Video) cho ${shots.length} cảnh (-${totalCost} Credits). Xem thử từng cảnh trước khi xuất phim!`;\n    }\n\n    function rerollShotVideo(idx) {\n      const tierCost = parseInt(document.getElementById(\"veoTierSelect\").value, 10) || 20;\n      credits = Math.max(0, credits - tierCost);\n      document.getElementById(\"creditDisplay\").textContent = credits;\n      shots[idx].status = \"VIDEO_READY\";\n      selectShot(idx);\n      document.getElementById(\"quickStatusBox\").textContent =\n        `✓ Đã quay lại riêng Cảnh 0${shots[idx].order} bằng Veo 3 (-${tierCost} Credits). Các cảnh khác giữ nguyên trong bộ nhớ đệm Cache!`;\n    }\n\n    function exportFinalMovie() {\n      shots.forEach(s => s.status = \"VIDEO_APPROVED\");\n      setWorkflowStep(4);\n      renderUI();\n      document.getElementById(\"quickStatusBox\").textContent =\n        `🎬 Đang kết xuất DCI 2K (2048×1080 @ 24fps) trên NVIDIA Quadro P2000 (NVENC + LUT ${settings.lut.toUpperCase()})...\nFile xuất: out/final_cinema_dci2k_24fps.mp4`;\n    }\n\n    function addNewShot() {\n      const nextNum = shots.length + 1;\n      shots.push({\n        id: `shot_0${nextNum}`,\n        order: nextNum,\n        duration: 4.0,\n        status: \"STORYBOARD_READY\",\n        title: `CẢNH MỚI 0${nextNum}`,\n        narration: \"Lời dẫn chuyện mới cho phân cảnh tiếp theo.\",\n        synopsis: \"Mô tả góc máy và ánh sáng điện ảnh cho cảnh quay mới.\",\n        lens: \"50mm Anamorphic f/1.8\",\n        motion: \"Slow Dolly Push-In\",\n        colors: [\"#111827\", \"#1f2937\", \"#38bdf8\"]\n      });\n      activeShotIdx = shots.length - 1;\n      renderUI();\n    }\n\n    function togglePlayback() {\n      isPlaying = !isPlaying;\n      document.getElementById(\"playPauseBtn\").textContent = isPlaying ? \"⏸ Tạm Dừng\" : \"▶ Phát Tiếp\";\n    }\n\n    // Vòng lặp vẽ Màn hình Cinema Preview 24fps\n    const canvas = document.getElementById(\"cinemaCanvas\");\n    const ctx = canvas.getContext(\"2d\");\n\n    function renderCinemaMonitor() {\n      if (isPlaying) {\n        frame++;\n        if (frame % 108 === 0) {\n          activeShotIdx = (activeShotIdx + 1) % shots.length;\n          renderUI();\n        }\n      }\n\n      const shot = shots[activeShotIdx];\n      const w = canvas.width;\n      const h = canvas.height;\n\n      const zoom = 1.0 + ((frame % 108) / 108) * 0.07;\n      ctx.save();\n      ctx.translate(w / 2, h / 2);\n      ctx.scale(zoom, zoom);\n      ctx.translate(-w / 2, -h / 2);\n\n      const grad = ctx.createRadialGradient(w * 0.5, h * 0.42, 30, w * 0.5, h * 0.5, w * 0.72);\n      grad.addColorStop(0, shot.colors[2]);\n      grad.addColorStop(0.4, shot.colors[1]);\n      grad.addColorStop(1, shot.colors[0]);\n      ctx.fillStyle = grad;\n      ctx.fillRect(0, 0, w, h);\n\n      // Oval Anamorphic Bokeh\n      for (let i = 0; i < 10; i++) {\n        const bx = (i * 107 + frame * 0.35) % w;\n        const by = (i * 59 + Math.sin(frame * 0.02 + i) * 18) % h;\n        ctx.beginPath();\n        ctx.ellipse(bx, by, 13 + (i % 3) * 7, 26 + (i % 3) * 12, 0, 0, Math.PI * 2);\n        ctx.fillStyle = \"rgba(255, 235, 190, 0.065)\";\n        ctx.fill();\n      }\n      ctx.restore();\n\n      // Hạt 3D Volumetric\n      if (settings.particle !== \"none\") {\n        particles.forEach(p => {\n          if (isPlaying) {\n            p.y += p.vy;\n            p.x += p.vx;\n            if (p.y < 0) p.y = h;\n            if (p.x < 0) p.x = w;\n            if (p.x > w) p.x = 0;\n          }\n          ctx.beginPath();\n          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);\n          ctx.fillStyle = settings.particle === \"embers\"\n            ? `rgba(255, 125, 45, ${p.a})`\n            : settings.particle === \"mist\"\n            ? `rgba(205, 230, 255, ${p.a * 0.7})`\n            : `rgba(255, 240, 200, ${p.a})`;\n          ctx.fill();\n        });\n      }\n\n      // Vignette quang học\n      const vig = ctx.createRadialGradient(w / 2, h / 2, w * 0.26, w / 2, h / 2, w * 0.62);\n      vig.addColorStop(0, \"rgba(0,0,0,0)\");\n      vig.addColorStop(1, \"rgba(0,0,0,0.65)\");\n      ctx.fillStyle = vig;\n      ctx.fillRect(0, 0, w, h);\n\n      // Chữ 3D Điện Ảnh\n      ctx.save();\n      ctx.fillStyle = \"rgba(248, 250, 252, 0.94)\";\n      ctx.font = \"300 27px 'Inter', 'Segoe UI', sans-serif\";\n      ctx.textAlign = \"center\";\n      ctx.shadowColor = \"rgba(0,0,0,0.9)\";\n      ctx.shadowBlur = 22;\n      ctx.fillText(shot.title.split(\"\").join(\" \"), w / 2, h / 2 + 6);\n      ctx.restore();\n\n      // Phụ đề lời bình\n      ctx.save();\n      ctx.fillStyle = \"rgba(0, 0, 0, 0.48)\";\n      ctx.fillRect(w * 0.14, h - 98, w * 0.72, 30);\n      ctx.fillStyle = \"#f1f5f9\";\n      ctx.font = \"italic 14px 'Inter', 'Segoe UI', sans-serif\";\n      ctx.textAlign = \"center\";\n      ctx.fillText(shot.narration, w / 2, h - 78);\n      ctx.restore();\n\n      // Viền đen CinemaScope 2.39:1\n      if (settings.aspect === \"2.39:1\") {\n        ctx.fillStyle = \"#000000\";\n        ctx.fillRect(0, 0, w, 55);\n        ctx.fillRect(0, h - 55, w, 55);\n      }\n\n      setTimeout(() => requestAnimationFrame(renderCinemaMonitor), 1000 / 24);\n    }\n\n    // Modal GitHub Deploy\n    function openGitHubModal() {\n      document.getElementById(\"githubModal\").classList.add(\"open\");\n    }\n    function closeGitHubModal() {\n      document.getElementById(\"githubModal\").classList.remove(\"open\");\n    }\n\n    function utf8ToBase64(str) {\n      return btoa(unescape(encodeURIComponent(str)));\n    }\n\n    async function ghFetch(url, token, method = \"GET\", bodyObj = null) {\n      const headers = {\n        \"Authorization\": `Bearer ${token}`,\n        \"Accept\": \"application/vnd.github+json\",\n        \"X-GitHub-Api-Version\": \"2022-11-28\"\n      };\n      const opts = { method, headers };\n      if (bodyObj !== null) {\n        headers[\"Content-Type\"] = \"application/json\";\n        opts.body = JSON.stringify(bodyObj);\n      }\n      const res = await fetch(url, opts);\n      const text = await res.text();\n      let data = {};\n      try { data = text ? JSON.parse(text) : {}; } catch (e) {}\n      if (!res.ok) {\n        const err = new Error(data.message || `HTTP ${res.status}`);\n        err.status = res.status;\n        err.details = data;\n        throw err;\n      }\n      return data;\n    }\n\n    async function pushAllFilesToGitHubFromBrowser() {\n      const token = document.getElementById(\"ghTokenInput\").value.trim();\n      const btn = document.getElementById(\"btnDeployNow\");\n      const logEl = document.getElementById(\"ghModalLog\");\n\n      if (!token) {\n        alert(\"Vui lòng nhập GitHub Personal Access Token!\");\n        return;\n      }\n\n      btn.disabled = true;\n      btn.textContent = \"⏳ Đang đẩy toàn bộ 25 file lên GitHub...\";\n      logEl.textContent = \"Đang xác thực với api.github.com...\";\n\n      try {\n        const user = await ghFetch(\"https://api.github.com/user\", token, \"GET\");\n        const owner = user.login;\n        const repo = \"video3dremotion\";\n        let repoUrl = `https://github.com/${owner}/${repo}`;\n        logEl.textContent = `[1/4] Đã xác thực tài khoản: @${owner}\n`;\n\n        try {\n          const created = await ghFetch(\"https://api.github.com/user/repos\", token, \"POST\", {\n            name: repo,\n            description: \"High-Speed AI Director & 3D Cinematic Video-by-Code Studio (DCI 2K 2048x1080 @ 24fps)\",\n            private: false,\n            auto_init: true\n          });\n          repoUrl = created.html_url || repoUrl;\n          logEl.textContent += `[2/4] Đã tạo mới Public Repo: ${repoUrl}\n`;\n        } catch (createErr) {\n          if (createErr.status === 422 || createErr.status === 403) {\n            logEl.textContent += `[2/4] Đang kết nối vào repo ${repoUrl}...\n`;\n          } else {\n            throw createErr;\n          }\n        }\n\n        let baseRef = null;\n        try {\n          baseRef = await ghFetch(`https://api.github.com/repos/${owner}/${repo}/git/ref/heads/main`, token, \"GET\");\n        } catch (refErr) {\n          logEl.textContent += `  + Khởi tạo nhánh main ban đầu...\n`;\n          await ghFetch(`https://api.github.com/repos/${owner}/${repo}/contents/README.md`, token, \"PUT\", {\n            message: \"chore: initialize video3dremotion repository\",\n            content: utf8ToBase64(REPO_FILES_BUNDLE[\"README.md\"] || \"# video3dremotion\")\n          });\n          baseRef = await ghFetch(`https://api.github.com/repos/${owner}/${repo}/git/ref/heads/main`, token, \"GET\");\n        }\n\n        try {\n          const latestCommitSha = baseRef.object.sha;\n          const commitData = await ghFetch(`https://api.github.com/repos/${owner}/${repo}/git/commits/${latestCommitSha}`, token, \"GET\");\n          const baseTreeSha = commitData.tree.sha;\n\n          const entries = Object.entries(REPO_FILES_BUNDLE);\n          logEl.textContent += `[3/4] Đang đóng gói ${entries.length} file vào Git Tree...\n`;\n          const treeItems = entries.map(([path, content]) => ({\n            path,\n            mode: \"100644\",\n            type: \"blob\",\n            content\n          }));\n\n          const newTree = await ghFetch(`https://api.github.com/repos/${owner}/${repo}/git/trees`, token, \"POST\", {\n            base_tree: baseTreeSha,\n            tree: treeItems\n          });\n\n          logEl.textContent += `[4/4] Đang tạo Commit và cập nhật nhánh main...\n`;\n          const newCommit = await ghFetch(`https://api.github.com/repos/${owner}/${repo}/git/commits`, token, \"POST\", {\n            message: \"feat: complete high-speed video3dremotion v3 studio with Shot Hash Cache & clean UI\",\n            tree: newTree.sha,\n            parents: [latestCommitSha]\n          });\n\n          await ghFetch(`https://api.github.com/repos/${owner}/${repo}/git/refs/heads/main`, token, \"PATCH\", {\n            sha: newCommit.sha,\n            force: true\n          });\n        } catch (treeErr) {\n          const entries = Object.entries(REPO_FILES_BUNDLE);\n          for (let i = 0; i < entries.length; i++) {\n            const [path, content] = entries[i];\n            logEl.textContent = `Đang đẩy file (${i + 1}/${entries.length}): ${path}...`;\n            let existingSha = undefined;\n            try {\n              const existing = await ghFetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, token, \"GET\");\n              existingSha = existing.sha;\n            } catch (e) {}\n            const body = { message: `feat: update ${path}`, content: utf8ToBase64(content) };\n            if (existingSha) body.sha = existingSha;\n            await ghFetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, token, \"PUT\", body);\n          }\n        }\n\n        btn.textContent = \"✅ Đã Cập Nhật Lên GitHub Thành Công!\";\n        logEl.innerHTML = `🎉 <strong>HOÀN TẤT 100%!</strong> Mở xem repo của bạn tại: <a href=\"${repoUrl}\" target=\"_blank\" style=\"color:#38bdf8; font-weight:bold;\">${repoUrl}</a>`;\n      } catch (err) {\n        btn.disabled = false;\n        btn.textContent = \"🔄 Thử Lại Cập Nhật Lên GitHub\";\n        logEl.textContent = `❌ Lỗi: ${err.message}\n👉 Hãy bấm nút \"🔑 Bước 1: Bấm lấy Token Classic (Đã tích sẵn quyền repo)\" ở trên, bấm Generate token rồi dán mã 'ghp_...' vào ô nhé!`;\n      }\n    }\n\n    renderUI();\n    renderCinemaMonitor();\n  </script>\n</body>\n</html>\n"};
+
+    let credits = 1000;
+    let isPlaying = true;
+    let activeShotIdx = 0;
+    let frame = 0;
+    let settings = {
+      aspect: "2.39:1",
+      lut: "kodak2383",
+      particle: "warm_dust"
+    };
+
+    let shots = [
+      {
+        id: "shot_01",
+        order: 1,
+        duration: 4.5,
+        status: "STORYBOARD_READY",
+        title: "KHỞI NGUỒN ĐẠI NGÀN",
+        narration: "Giữa không gian mênh mông của bình minh, mỗi hạt cà phê bắt đầu từ sương sớm.",
+        synopsis: "Đại cảnh sương mù buổi sớm trên cao nguyên, tia nắng vàng xuyên qua tán rừng.",
+        lens: "24mm Anamorphic f/2.8",
+        motion: "Slow Aerial Push-In",
+        colors: ["#0b132b", "#1c2541", "#f59e0b"]
+      },
+      {
+        id: "shot_02",
+        order: 2,
+        duration: 4.0,
+        status: "STORYBOARD_READY",
+        title: "CHIỀU SÂU QUANG HỌC",
+        narration: "Từng giọt sương rơi chậm rãi, phản chiếu ánh sáng nguyên bản của đất trời.",
+        synopsis: "Cận cảnh Macro giọt sương trên lá cà phê, hậu cảnh xoá phông Bokeh hình elip.",
+        lens: "85mm Anamorphic Macro f/1.4",
+        motion: "Macro Parallax Slider",
+        colors: ["#081c15", "#1b4332", "#fbbf24"]
+      },
+      {
+        id: "shot_03",
+        order: 3,
+        duration: 5.0,
+        status: "STORYBOARD_READY",
+        title: "NGHỆ THUẬT LỬA & HƯƠNG",
+        narration: "Khi nhiệt độ chạm đến đỉnh cao, hương thơm thức tỉnh mọi giác quan.",
+        synopsis: "Góc máy thấp hất lên: Hạt cà phê rang chuyển màu nâu óng giữa các tia lửa ấm áp.",
+        lens: "35mm Anamorphic f/1.8",
+        motion: "Dynamic Low-Angle Orbit",
+        colors: ["#1f0d07", "#7c2d12", "#fb923c"]
+      },
+      {
+        id: "shot_04",
+        order: 4,
+        duration: 4.5,
+        status: "STORYBOARD_READY",
+        title: "DẤU ẤN VƯỢT THỜI GIAN",
+        narration: "Một tuyệt tác điện ảnh trong từng giọt thưởng thức.",
+        synopsis: "Bố cục đối xứng: Tách espresso bốc khói nhẹ giữa bàn gỗ tối màu, ánh sáng ven sang trọng.",
+        lens: "50mm Anamorphic f/2.0",
+        motion: "Slow Crane Pull-Back",
+        colors: ["#090d16", "#1e293b", "#f8fafc"]
+      }
+    ];
+
+    const particles = Array.from({ length: 75 }, (_, i) => ({
+      x: (Math.sin(i * 12.9898) * 0.5 + 0.5) * 1024,
+      y: (Math.cos(i * 78.233) * 0.5 + 0.5) * 540,
+      r: (i % 3) + 1.2,
+      vy: -0.22 - (i % 4) * 0.1,
+      vx: Math.sin(i) * 0.18,
+      a: 0.25 + (i % 5) * 0.1
+    }));
+
+    function updateSettings() {
+      settings.aspect = document.getElementById("aspectSelect").value;
+      settings.lut = document.getElementById("lutSelect").value;
+      settings.particle = document.getElementById("particleSelect").value;
+      document.getElementById("hudSpec").textContent =
+        `DCI 2K (2048×1080) • ${settings.aspect} • 24 FPS • LUT: ${settings.lut.toUpperCase()}`;
+    }
+
+    function setWorkflowStep(stepNum) {
+      for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById("navStep" + i);
+        el.className = "wf-step" + (i < stepNum ? " done" : i === stepNum ? " active" : "");
+      }
+    }
+
+    function jumpToStep(stepNum) {
+      setWorkflowStep(stepNum);
+    }
+
+    function renderUI() {
+      // Timeline segments
+      const tl = document.getElementById("timelineSegments");
+      tl.innerHTML = shots.map((s, idx) => `
+        <div class="timeline-segment ${idx === activeShotIdx ? 'active' : ''} ${s.status === 'VIDEO_APPROVED' ? 'approved' : ''}"
+             onclick="selectShot(${idx})" title="Cảnh 0${s.order}: ${s.title}"></div>
+      `).join("");
+
+      // Shot cards
+      const grid = document.getElementById("shotsGrid");
+      grid.innerHTML = shots.map((s, idx) => {
+        let tagClass = "tag-free";
+        let tagText = "Ảnh Storyboard (0 Cr)";
+        if (s.status === "VIDEO_READY") { tagClass = "tag-veo"; tagText = "Clip Veo 3 Sẵn Sàng"; }
+        if (s.status === "VIDEO_APPROVED") { tagClass = "tag-done"; tagText = "Đã Duyệt Xuất Phim ✓"; }
+
+        const bgGrad = `linear-gradient(135deg, ${s.colors[0]} 0%, ${s.colors[1]} 65%, ${s.colors[2]} 100%)`;
+
+        return `
+          <div class="shot-card ${idx === activeShotIdx ? 'selected' : ''} ${s.status === 'VIDEO_APPROVED' ? 'approved' : ''}"
+               onclick="selectShot(${idx})">
+            <div class="shot-thumb" style="background: ${bgGrad};">
+              <span class="shot-status-tag ${tagClass}">${tagText}</span>
+              <div style="font-size: 12px; font-weight: 700; letter-spacing: 1.5px; color: #fff; text-shadow: 0 2px 8px #000;">
+                0${s.order} • ${s.title}
+              </div>
+            </div>
+            <div class="shot-body">
+              <div class="shot-meta">
+                <span>📷 ${s.lens}</span>
+                <span>⏱️ ${s.duration.toFixed(1)}s</span>
+              </div>
+              <div class="shot-desc">${s.synopsis}</div>
+              <input class="shot-narration-input" value="${s.narration}"
+                     onclick="event.stopPropagation()"
+                     onchange="updateNarration(${idx}, this.value)"
+                     title="Chỉnh sửa trực tiếp lời dẫn chuyện của cảnh này" />
+            </div>
+            <div class="shot-footer">
+              <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="event.stopPropagation(); rerollShotFrame(${idx})">
+                🔄 Đổi Ảnh (0 Cr)
+              </button>
+              <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="event.stopPropagation(); rerollShotVideo(${idx})">
+                🎬 Quay Lại Veo 3
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      const totalSec = shots.reduce((acc, x) => acc + x.duration, 0);
+      const s = shots[activeShotIdx];
+      document.getElementById("hudShotInfo").textContent =
+        `CẢNH 0${s.order}/0${shots.length} • ${s.lens.toUpperCase()} • ${s.motion.toUpperCase()}`;
+      document.getElementById("timecodeText").textContent =
+        `Cảnh 0${s.order} (${s.duration.toFixed(1)}s) / Tổng ${totalSec.toFixed(1)}s`;
+    }
+
+    function selectShot(idx) {
+      activeShotIdx = idx;
+      renderUI();
+    }
+
+    function updateNarration(idx, val) {
+      shots[idx].narration = val;
+    }
+
+    function generateStoryboardStep() {
+      const prompt = document.getElementById("promptInput").value.trim();
+      if (!prompt) return;
+      shots[0].synopsis = `[Đại cảnh mở đầu] ${prompt.slice(0, 92)}...`;
+      shots.forEach(s => s.status = "STORYBOARD_READY");
+      setWorkflowStep(2);
+      renderUI();
+      document.getElementById("quickStatusBox").textContent =
+        `✓ Đã lên kịch bản ${shots.length} cảnh quay & tạo 4 ảnh Storyboard bằng Nano Banana 2 (Tốn 0 Credit). Hãy kiểm tra và bấm Duyệt!`;
+    }
+
+    function rerollShotFrame(idx) {
+      const note = prompt("Nhập điểm muốn thay đổi ở bức ảnh phân cảnh này (Tốn 0 Credit):", "Đổi góc máy thấp hơn và thêm tia nắng rõ hơn");
+      if (!note) return;
+      shots[idx].synopsis += ` (${note})`;
+      shots[idx].status = "STORYBOARD_READY";
+      selectShot(idx);
+      document.getElementById("quickStatusBox").textContent =
+        `✓ Đã tạo lại ảnh Storyboard cho Cảnh 0${shots[idx].order} (Chi phí: 0 Credit).`;
+    }
+
+    function approveAllStoryboards() {
+      const tierCost = parseInt(document.getElementById("veoTierSelect").value, 10) || 20;
+      const totalCost = shots.length * tierCost;
+      credits = Math.max(0, credits - totalCost);
+      document.getElementById("creditDisplay").textContent = credits;
+      shots.forEach(s => s.status = "VIDEO_READY");
+      setWorkflowStep(3);
+      renderUI();
+      document.getElementById("quickStatusBox").textContent =
+        `✓ Đã duyệt Storyboard & gọi Veo 3 (Image-to-Video) cho ${shots.length} cảnh (-${totalCost} Credits). Xem thử từng cảnh trước khi xuất phim!`;
+    }
+
+    function rerollShotVideo(idx) {
+      const tierCost = parseInt(document.getElementById("veoTierSelect").value, 10) || 20;
+      credits = Math.max(0, credits - tierCost);
+      document.getElementById("creditDisplay").textContent = credits;
+      shots[idx].status = "VIDEO_READY";
+      selectShot(idx);
+      document.getElementById("quickStatusBox").textContent =
+        `✓ Đã quay lại riêng Cảnh 0${shots[idx].order} bằng Veo 3 (-${tierCost} Credits). Các cảnh khác giữ nguyên trong bộ nhớ đệm Cache!`;
+    }
+
+    function exportFinalMovie() {
+      shots.forEach(s => s.status = "VIDEO_APPROVED");
+      setWorkflowStep(4);
+      renderUI();
+      document.getElementById("quickStatusBox").textContent =
+        `🎬 Đang kết xuất DCI 2K (2048×1080 @ 24fps) trên NVIDIA Quadro P2000 (NVENC + LUT ${settings.lut.toUpperCase()})...
+File xuất: out/final_cinema_dci2k_24fps.mp4`;
+    }
+
+    function addNewShot() {
+      const nextNum = shots.length + 1;
+      shots.push({
+        id: `shot_0${nextNum}`,
+        order: nextNum,
+        duration: 4.0,
+        status: "STORYBOARD_READY",
+        title: `CẢNH MỚI 0${nextNum}`,
+        narration: "Lời dẫn chuyện mới cho phân cảnh tiếp theo.",
+        synopsis: "Mô tả góc máy và ánh sáng điện ảnh cho cảnh quay mới.",
+        lens: "50mm Anamorphic f/1.8",
+        motion: "Slow Dolly Push-In",
+        colors: ["#111827", "#1f2937", "#38bdf8"]
+      });
+      activeShotIdx = shots.length - 1;
+      renderUI();
+    }
+
+    function togglePlayback() {
+      isPlaying = !isPlaying;
+      document.getElementById("playPauseBtn").textContent = isPlaying ? "⏸ Tạm Dừng" : "▶ Phát Tiếp";
+    }
+
+    // Vòng lặp vẽ Màn hình Cinema Preview 24fps
+    const canvas = document.getElementById("cinemaCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function renderCinemaMonitor() {
+      if (isPlaying) {
+        frame++;
+        if (frame % 108 === 0) {
+          activeShotIdx = (activeShotIdx + 1) % shots.length;
+          renderUI();
+        }
+      }
+
+      const shot = shots[activeShotIdx];
+      const w = canvas.width;
+      const h = canvas.height;
+
+      const zoom = 1.0 + ((frame % 108) / 108) * 0.07;
+      ctx.save();
+      ctx.translate(w / 2, h / 2);
+      ctx.scale(zoom, zoom);
+      ctx.translate(-w / 2, -h / 2);
+
+      const grad = ctx.createRadialGradient(w * 0.5, h * 0.42, 30, w * 0.5, h * 0.5, w * 0.72);
+      grad.addColorStop(0, shot.colors[2]);
+      grad.addColorStop(0.4, shot.colors[1]);
+      grad.addColorStop(1, shot.colors[0]);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Oval Anamorphic Bokeh
+      for (let i = 0; i < 10; i++) {
+        const bx = (i * 107 + frame * 0.35) % w;
+        const by = (i * 59 + Math.sin(frame * 0.02 + i) * 18) % h;
+        ctx.beginPath();
+        ctx.ellipse(bx, by, 13 + (i % 3) * 7, 26 + (i % 3) * 12, 0, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255, 235, 190, 0.065)";
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // Hạt 3D Volumetric
+      if (settings.particle !== "none") {
+        particles.forEach(p => {
+          if (isPlaying) {
+            p.y += p.vy;
+            p.x += p.vx;
+            if (p.y < 0) p.y = h;
+            if (p.x < 0) p.x = w;
+            if (p.x > w) p.x = 0;
+          }
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = settings.particle === "embers"
+            ? `rgba(255, 125, 45, ${p.a})`
+            : settings.particle === "mist"
+            ? `rgba(205, 230, 255, ${p.a * 0.7})`
+            : `rgba(255, 240, 200, ${p.a})`;
+          ctx.fill();
+        });
+      }
+
+      // Vignette quang học
+      const vig = ctx.createRadialGradient(w / 2, h / 2, w * 0.26, w / 2, h / 2, w * 0.62);
+      vig.addColorStop(0, "rgba(0,0,0,0)");
+      vig.addColorStop(1, "rgba(0,0,0,0.65)");
+      ctx.fillStyle = vig;
+      ctx.fillRect(0, 0, w, h);
+
+      // Chữ 3D Điện Ảnh
+      ctx.save();
+      ctx.fillStyle = "rgba(248, 250, 252, 0.94)";
+      ctx.font = "300 27px 'Inter', 'Segoe UI', sans-serif";
+      ctx.textAlign = "center";
+      ctx.shadowColor = "rgba(0,0,0,0.9)";
+      ctx.shadowBlur = 22;
+      ctx.fillText(shot.title.split("").join(" "), w / 2, h / 2 + 6);
+      ctx.restore();
+
+      // Phụ đề lời bình
+      ctx.save();
+      ctx.fillStyle = "rgba(0, 0, 0, 0.48)";
+      ctx.fillRect(w * 0.14, h - 98, w * 0.72, 30);
+      ctx.fillStyle = "#f1f5f9";
+      ctx.font = "italic 14px 'Inter', 'Segoe UI', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(shot.narration, w / 2, h - 78);
+      ctx.restore();
+
+      // Viền đen CinemaScope 2.39:1
+      if (settings.aspect === "2.39:1") {
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(0, 0, w, 55);
+        ctx.fillRect(0, h - 55, w, 55);
+      }
+
+      setTimeout(() => requestAnimationFrame(renderCinemaMonitor), 1000 / 24);
+    }
+
+    // Modal GitHub Deploy
+    function openGitHubModal() {
+      document.getElementById("githubModal").classList.add("open");
+    }
+    function closeGitHubModal() {
+      document.getElementById("githubModal").classList.remove("open");
+    }
+
+    function utf8ToBase64(str) {
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+
+    async function ghFetch(url, token, method = "GET", bodyObj = null) {
+      const headers = {
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
+      };
+      const opts = { method, headers };
+      if (bodyObj !== null) {
+        headers["Content-Type"] = "application/json";
+        opts.body = JSON.stringify(bodyObj);
+      }
+      const res = await fetch(url, opts);
+      const text = await res.text();
+      let data = {};
+      try { data = text ? JSON.parse(text) : {}; } catch (e) {}
+      if (!res.ok) {
+        const err = new Error(data.message || `HTTP ${res.status}`);
+        err.status = res.status;
+        err.details = data;
+        throw err;
+      }
+      return data;
+    }
+
+    async function pushAllFilesToGitHubFromBrowser() {
+      const token = document.getElementById("ghTokenInput").value.trim();
+      const btn = document.getElementById("btnDeployNow");
+      const logEl = document.getElementById("ghModalLog");
+
+      if (!token) {
+        alert("Vui lòng nhập GitHub Personal Access Token!");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "⏳ Đang đẩy toàn bộ 25 file lên GitHub...";
+      logEl.textContent = "Đang xác thực với api.github.com...";
+
+      try {
+        const user = await ghFetch("https://api.github.com/user", token, "GET");
+        const owner = user.login;
+        const repo = "video3dremotion";
+        let repoUrl = `https://github.com/${owner}/${repo}`;
+        logEl.textContent = `[1/4] Đã xác thực tài khoản: @${owner}
+`;
+
+        try {
+          const created = await ghFetch("https://api.github.com/user/repos", token, "POST", {
+            name: repo,
+            description: "High-Speed AI Director & 3D Cinematic Video-by-Code Studio (DCI 2K 2048x1080 @ 24fps)",
+            private: false,
+            auto_init: true
+          });
+          repoUrl = created.html_url || repoUrl;
+          logEl.textContent += `[2/4] Đã tạo mới Public Repo: ${repoUrl}
+`;
+        } catch (createErr) {
+          if (createErr.status === 422 || createErr.status === 403) {
+            logEl.textContent += `[2/4] Đang kết nối vào repo ${repoUrl}...
+`;
+          } else {
+            throw createErr;
+          }
+        }
+
+        let baseRef = null;
+        try {
+          baseRef = await ghFetch(`https://api.github.com/repos/${owner}/${repo}/git/ref/heads/main`, token, "GET");
+        } catch (refErr) {
+          logEl.textContent += `  + Khởi tạo nhánh main ban đầu...
+`;
+          await ghFetch(`https://api.github.com/repos/${owner}/${repo}/contents/README.md`, token, "PUT", {
+            message: "chore: initialize video3dremotion repository",
+            content: utf8ToBase64(REPO_FILES_BUNDLE["README.md"] || "# video3dremotion")
+          });
+          baseRef = await ghFetch(`https://api.github.com/repos/${owner}/${repo}/git/ref/heads/main`, token, "GET");
+        }
+
+        try {
+          const latestCommitSha = baseRef.object.sha;
+          const commitData = await ghFetch(`https://api.github.com/repos/${owner}/${repo}/git/commits/${latestCommitSha}`, token, "GET");
+          const baseTreeSha = commitData.tree.sha;
+
+          const entries = Object.entries(REPO_FILES_BUNDLE);
+          logEl.textContent += `[3/4] Đang đóng gói ${entries.length} file vào Git Tree...
+`;
+          const treeItems = entries.map(([path, content]) => ({
+            path,
+            mode: "100644",
+            type: "blob",
+            content
+          }));
+
+          const newTree = await ghFetch(`https://api.github.com/repos/${owner}/${repo}/git/trees`, token, "POST", {
+            base_tree: baseTreeSha,
+            tree: treeItems
+          });
+
+          logEl.textContent += `[4/4] Đang tạo Commit và cập nhật nhánh main...
+`;
+          const newCommit = await ghFetch(`https://api.github.com/repos/${owner}/${repo}/git/commits`, token, "POST", {
+            message: "feat: complete high-speed video3dremotion v3 studio with Shot Hash Cache & clean UI",
+            tree: newTree.sha,
+            parents: [latestCommitSha]
+          });
+
+          await ghFetch(`https://api.github.com/repos/${owner}/${repo}/git/refs/heads/main`, token, "PATCH", {
+            sha: newCommit.sha,
+            force: true
+          });
+        } catch (treeErr) {
+          const entries = Object.entries(REPO_FILES_BUNDLE);
+          for (let i = 0; i < entries.length; i++) {
+            const [path, content] = entries[i];
+            logEl.textContent = `Đang đẩy file (${i + 1}/${entries.length}): ${path}...`;
+            let existingSha = undefined;
+            try {
+              const existing = await ghFetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, token, "GET");
+              existingSha = existing.sha;
+            } catch (e) {}
+            const body = { message: `feat: update ${path}`, content: utf8ToBase64(content) };
+            if (existingSha) body.sha = existingSha;
+            await ghFetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, token, "PUT", body);
+          }
+        }
+
+        btn.textContent = "✅ Đã Cập Nhật Lên GitHub Thành Công!";
+        logEl.innerHTML = `🎉 <strong>HOÀN TẤT 100%!</strong> Mở xem repo của bạn tại: <a href="${repoUrl}" target="_blank" style="color:#38bdf8; font-weight:bold;">${repoUrl}</a>`;
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = "🔄 Thử Lại Cập Nhật Lên GitHub";
+        logEl.textContent = `❌ Lỗi: ${err.message}
+👉 Hãy bấm nút "🔑 Bước 1: Bấm lấy Token Classic (Đã tích sẵn quyền repo)" ở trên, bấm Generate token rồi dán mã 'ghp_...' vào ô nhé!`;
+      }
+    }
+
+    renderUI();
+    renderCinemaMonitor();
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>video3dremotion — AI Director & 3D Cinema Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #07090e;
+      --bg-card: #0f141f;
+      --bg-card-border: #1e283d;
+      --accent-cyan: #00e5ff;
+      --accent-gold: #f5c518;
+      --accent-orange: #ff7b29;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-sub: #64748b;
+      --success: #10b981;
+      --border-radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(ellipse at 20% 0%, rgba(0, 229, 255, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 10%, rgba(245, 197, 24, 0.06) 0%, transparent 50%);
+    }
+
+    header {
+      border-bottom: 1px solid var(--bg-card-border);
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #00e5ff, #3b82f6);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.35);
+    }
+
+    .brand-title {
+      font-family: 'Cinzel', serif;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #fff;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--accent-cyan);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .status-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      background: #131b2e;
+      border: 1px solid var(--bg-card-border);
+      color: var(--text-muted);
+    }
+
+    .badge.active {
+      border-color: rgba(16, 185, 129, 0.4);
+      color: var(--success);
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    .btn-remotion {
+      background: #2563eb;
+      color: #fff;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-remotion:hover {
+      background: #1d4ed8;
+      box-shadow: 0 0 15px rgba(37, 99, 235, 0.5);
+    }
+
+    main {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+
+    /* Stepper */
+    .stepper {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 36px;
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--border-radius);
+      padding: 16px 24px;
+      gap: 16px;
+      overflow-x: auto;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-sub);
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .step-item.active {
+      color: var(--accent-cyan);
+    }
+
+    .step-item.completed {
+      color: var(--success);
+    }
+
+    .step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .step-item.active .step-num {
+      background: var(--accent-cyan);
+      color: #000;
+      box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+    }
+
+    .step-item.completed .step-num {
+      background: var(--success);
+      color: #000;
+    }
+
+    /* Section Cards */
+    .section-box {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-card-border);
+      border-radius: var(--border-radius);
+      padding: 28px;
+      margin-bottom: 32px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+    }
+
+    .section-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    /* Input styling */
+    textarea {
+      width: 100%;
+      background: #090d16;
+      border: 1px solid #1f2b45;
+      border-radius: 8px;
+      color: #fff;
+      padding: 16px;
+      font-size: 15px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 110px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+    }
+
+    .preset-chips {
+      display: flex;
+      gap: 8px;
+      margin: 12px 0 20px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      background: #141c2c;
+      border: 1px solid #23314d;
+      color: #cbd5e1;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chip:hover {
+      background: #1e293b;
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #00e5ff 0%, #0284c7 100%);
+      color: #000;
+      font-weight: 700;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 25px rgba(0, 229, 255, 0.45);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Project Banner */
+    .project-header-card {
+      background: linear-gradient(180deg, #131b2e 0%, #0d1322 100%);
+      border: 1px solid #253352;
+      border-radius: var(--border-radius);
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+
+    .project-title-large {
+      font-family: 'Cinzel', serif;
+      font-size: 24px;
+      color: var(--accent-gold);
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .project-logline {
+      font-size: 15px;
+      color: #e2e8f0;
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+
+    .meta-pills {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .meta-pill {
+      font-size: 12px;
+      background: #090d16;
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid #23314d;
+      color: #94a3b8;
+    }
+
+    .meta-pill b {
+      color: var(--accent-cyan);
+    }
+
+    /* Shots Grid */
+    .shots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .shot-card {
+      background: #0d121c;
+      border: 1px solid #1a2337;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.2s;
+    }
+
+    .shot-card:hover {
+      border-color: #2b3958;
+    }
+
+    .shot-card-header {
+      padding: 14px 18px;
+      background: #111726;
+      border-bottom: 1px solid #1a2337;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .shot-id-tag {
+      font-weight: 700;
+      color: var(--accent-cyan);
+      font-size: 14px;
+    }
+
+    .shot-duration-tag {
+      font-size: 12px;
+      background: #1e293b;
+      padding: 3px 8px;
+      border-radius: 4px;
+      color: #cbd5e1;
+    }
+
+    .shot-preview-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #04060a;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .shot-preview-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .anamorphic-letterbox-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 10%;
+      background: #000;
+      z-index: 2;
+    }
+
+    .anamorphic-letterbox-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 10%;
+      background: #000;
+      z-index: 2;
+    }
+
+    .preview-overlay-title {
+      position: absolute;
+      z-index: 3;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+      background: rgba(0,0,0,0.5);
+      padding: 4px 12px;
+      border-radius: 4px;
+    }
+
+    .shot-card-body {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .camera-tag-cloud {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .cam-tag {
+      font-size: 11px;
+      background: #141c2c;
+      border: 1px solid #23314d;
+      padding: 3px 8px;
+      border-radius: 4px;
+      color: #94a3b8;
+    }
+
+    .synopsis-text {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #cbd5e1;
+    }
+
+    .narration-box {
+      background: #070a10;
+      border-left: 3px solid var(--accent-gold);
+      padding: 8px 12px;
+      border-radius: 0 6px 6px 0;
+      font-size: 12px;
+      color: #f5f5f5;
+      font-style: italic;
+    }
+
+    .shot-feedback-section {
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid #1a2337;
+      display: flex;
+      gap: 8px;
+    }
+
+    .input-feedback {
+      flex: 1;
+      background: #07090e;
+      border: 1px solid #23314d;
+      color: #fff;
+      padding: 6px 10px;
+      font-size: 12px;
+      border-radius: 6px;
+      outline: none;
+    }
+
+    .input-feedback:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .btn-regen {
+      background: #1f2b45;
+      color: #cbd5e1;
+      border: 1px solid #2d3e64;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-regen:hover {
+      background: #2a3b5f;
+      color: #fff;
+      border-color: var(--accent-cyan);
+    }
+
+    /* Gate Action Bar */
+    .gate-action-bar {
+      background: linear-gradient(90deg, #111827 0%, #172138 100%);
+      border: 1px solid #2a395c;
+      border-radius: var(--border-radius);
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .gate-info h3 {
+      font-size: 16px;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .gate-info p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .gate-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    select {
+      background: #090d16;
+      border: 1px solid #253352;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    /* Output Console */
+    .mastering-box {
+      background: #05080e;
+      border: 1px solid #1e293b;
+      border-radius: var(--border-radius);
+      padding: 24px;
+      font-family: 'Consolas', monospace;
+      font-size: 13px;
+      color: #38bdf8;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+
+    .mastering-box b {
+      color: var(--accent-gold);
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      border: 3px solid rgba(0, 229, 255, 0.2);
+      border-top: 3px solid var(--accent-cyan);
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-logo">🎬</div>
+      <div>
+        <div class="brand-title">video3dremotion</div>
+        <div class="brand-subtitle">DCI 2K • CinemaScope 2.39:1 • 24 FPS STUDIO</div>
+      </div>
+    </div>
+
+    <div class="status-group">
+      <div class="badge active">
+        <span class="badge-dot"></span>
+        <span id="hw-profile">Dell Precision 7530 (Xeon + Quadro P2000)</span>
+      </div>
+      <div class="badge" id="flow-credits-badge">
+        <span style="color: var(--accent-gold)">⚡ Veo 3 Credits:</span>
+        <span id="credits-val">Đang tải...</span>
+      </div>
+      <a href="http://localhost:3000" target="_blank" class="btn-remotion">
+        <span>🎨 Mở Remotion Studio</span>
+      </a>
+      <a href="/docs" target="_blank" class="badge" style="text-decoration: none;">
+        <span>API Docs</span>
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <!-- Stepper Navigation -->
+    <div class="stepper">
+      <div class="step-item active" id="step-nav-1">
+        <div class="step-num">1</div>
+        <span>Kịch Bản & Phân Cảnh</span>
+      </div>
+      <div class="step-item" id="step-nav-2">
+        <div class="step-num">2</div>
+        <span>Trạm 1: Storyboard Tĩnh (0 Credit)</span>
+      </div>
+      <div class="step-item" id="step-nav-3">
+        <div class="step-num">3</div>
+        <span>Trạm 2: Sinh Video Veo 3</span>
+      </div>
+      <div class="step-item" id="step-nav-4">
+        <div class="step-num">4</div>
+        <span>Ghép 3D & Xuất Rạp DCI 2K</span>
+      </div>
+    </div>
+
+    <!-- Section 1: Prompt Input -->
+    <div class="section-box" id="script-input-section">
+      <div class="section-title">
+        <span>✍️ Ý Tưởng Kịch Bản Điện Ảnh (Screenplay Prompt)</span>
+      </div>
+      <div class="section-desc">
+        Nhập ý tưởng video bằng tiếng Việt. Hệ thống Multi-Agent AI Director sẽ tự động tạo logline, định hình hồ sơ nhân vật và chia nhỏ thành các phân cảnh quay (shots) chuẩn tỷ lệ 2.39:1 CinemaScope.
+      </div>
+
+      <textarea id="prompt-input" placeholder="Ví dụ: Một phi hành gia đơn độc bước đi trên bão cát đỏ rực rỡ của sao Hỏa, tiến về phía một cánh cổng cổ đại phát sáng màu ngọc lam giữa hoàng hôn..."></textarea>
+
+      <div class="preset-chips">
+        <span class="chip" onclick="applyPreset('Một phi hành gia đơn độc khám phá tàn tích nền văn minh cổ đại trên sao Hỏa giữa bão cát đỏ rực và hoàng hôn 2 mặt trời')">🪐 Sao Hỏa Thám Hiểm</span>
+        <span class="chip" onclick="applyPreset('Thám tử tư trong áo măng tô bước qua hẻm phố Cyberpunk Sài Gòn 2088 ngập tràn ánh đèn neon và mưa phùn đêm')">🏙️ Sài Gòn Cyberpunk 2088</span>
+        <span class="chip" onclick="applyPreset('Hành trình của một người thợ chế tác đồng hồ cổ truyền thống tỉ mỉ lắp ráp các bánh răng cơ khí vàng óng trong ánh sáng tự nhiên')">⏳ Nghệ Nhân Thời Gian</span>
+      </div>
+
+      <button class="btn-primary" id="btn-create-script" onclick="createProject()">
+        <span id="btn-create-icon">🎬</span>
+        <span id="btn-create-text">Khởi Tạo Kịch Bản & Tạo Storyboard (0 Credit)</span>
+      </button>
+    </div>
+
+    <!-- Section 2: Project Detail & Shots Review (Gate 1 & Gate 2) -->
+    <div id="project-workspace" style="display: none;">
+      <!-- Project Summary Banner -->
+      <div class="project-header-card">
+        <div class="project-title-large" id="proj-title">PHIM ĐIỆN ẢNH DCI 2K</div>
+        <div class="project-logline" id="proj-logline">...</div>
+        <div class="meta-pills">
+          <div class="meta-pill">Mã Dự Án: <b id="proj-id">proj_001</b></div>
+          <div class="meta-pill">Chuẩn Rạp: <b>DCI 2K (2048x1080 @ 24fps)</b></div>
+          <div class="meta-pill">Tỷ Lệ Khung Hình: <b>CinemaScope 2.39:1</b></div>
+          <div class="meta-pill">Màu Phim Nhựa: <b>Kodak Vision3 2383 LUT</b></div>
+          <div class="meta-pill">Giai Đoạn: <b id="proj-stage">Trạm Duyệt 1</b></div>
+        </div>
+      </div>
+
+      <!-- Shots Grid -->
+      <div class="section-title">
+        <span>🎞️ Danh Sách Phân Cảnh Quay Chuẩn Điện Ảnh</span>
+      </div>
+      <div class="shots-grid" id="shots-container"></div>
+
+      <!-- Gate 1: Storyboard Approval Bar -->
+      <div class="gate-action-bar" id="gate1-action-bar">
+        <div class="gate-info">
+          <h3>Trạm Duyệt 1: Duyệt Toàn Bộ Storyboard Tĩnh (0 Credit)</h3>
+          <p>Khi bạn ưng ý tất cả các khung hình đầu (First Frames), bấm xác nhận để hệ thống chuyển sang gọi Veo 3 i2v.</p>
+        </div>
+        <div class="gate-controls">
+          <select id="model-tier-select">
+            <option value="veo-3-fast">Veo 3 Fast (20 credits/cảnh)</option>
+            <option value="veo-3.1-lite">Veo 3.1 Lite (10 credits/cảnh)</option>
+          </select>
+          <button class="btn-primary" onclick="approveGate1()">
+            <span>✨ Duyệt Storyboard & Sinh Video Veo 3</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Gate 2: Veo 3 Approval & Final Render Bar -->
+      <div class="gate-action-bar" id="gate2-action-bar" style="display: none;">
+        <div class="gate-info">
+          <h3>Trạm Duyệt 2: Duyệt Video Cảnh Quay Veo 3</h3>
+          <p>Xem thử từng clip chuyển động. Khi sẵn sàng, xuất toàn bộ vào Remotion 3D Engine và nén NVENC.</p>
+        </div>
+        <div class="gate-controls">
+          <button class="btn-primary" style="background: linear-gradient(135deg, #f5c518 0%, #ff7b29 100%);" onclick="approveGate2AndRender()">
+            <span>🚀 Xuất Phim Chuẩn Rạp DCI 2K (Remotion + NVENC)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mastering Result Box -->
+      <div class="section-box" id="mastering-result-section" style="display: none; margin-top: 32px;">
+        <div class="section-title">
+          <span>🎉 Hoàn Tất Đóng Gói Phim Chuẩn Rạp DCI 2K</span>
+        </div>
+        <div class="mastering-box" id="mastering-output"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = window.location.origin.startsWith("http") ? window.location.origin : "http://localhost:8000";
+    let currentProject = null;
+
+    // Check health & credits on load
+    async function checkHealth() {
+      try {
+        const res = await fetch(`${API_BASE}/api/health`);
+        const data = await res.json();
+        if (data.flow_credits) {
+          const mode = data.flow_credits.mode === "simulation" ? "Mô Phỏng (0 Tốn Credit)" : "Google Flow Live";
+          document.getElementById("credits-val").innerText = `${data.flow_credits.monthly_credits_remaining || 1000} credits (${mode})`;
+        }
+      } catch (e) {
+        document.getElementById("credits-val").innerText = "Chưa kết nối Backend (Port 8000)";
+      }
+    }
+    checkHealth();
+
+    function applyPreset(text) {
+      document.getElementById("prompt-input").value = text;
+    }
+
+    // Step 1: Create Project & Breakdown
+    async function createProject() {
+      const prompt = document.getElementById("prompt-input").value.trim();
+      if (!prompt) {
+        alert("Vui lòng nhập ý tưởng kịch bản video!");
+        return;
+      }
+
+      const btn = document.getElementById("btn-create-script");
+      btn.disabled = true;
+      document.getElementById("btn-create-icon").innerHTML = '<span class="spinner"></span>';
+      document.getElementById("btn-create-text").innerText = "Đang phân tích kịch bản & tạo Storyboard...";
+
+      try {
+        const res = await fetch(`${API_BASE}/api/projects`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_prompt: prompt })
+        });
+        if (!res.ok) throw new Error("Lỗi khi tạo dự án");
+        currentProject = await res.json();
+        renderProject();
+      } catch (err) {
+        alert("Lỗi kết nối tới backend: " + err.message);
+      } finally {
+        btn.disabled = false;
+        document.getElementById("btn-create-icon").innerHTML = "🎬";
+        document.getElementById("btn-create-text").innerText = "Khởi Tạo Kịch Bản & Tạo Storyboard (0 Credit)";
+      }
+    }
+
+    // Render Project
+    function renderProject() {
+      if (!currentProject) return;
+      document.getElementById("project-workspace").style.display = "block";
+      document.getElementById("proj-title").innerText = currentProject.title;
+      document.getElementById("proj-logline").innerText = currentProject.logline;
+      document.getElementById("proj-id").innerText = currentProject.project_id;
+      document.getElementById("proj-stage").innerText = currentProject.current_stage;
+
+      // Update Nav
+      const isGate2 = currentProject.current_stage.includes("gate2") || currentProject.current_stage.includes("completed");
+      document.getElementById("step-nav-1").className = "step-item completed";
+      document.getElementById("step-nav-2").className = isGate2 ? "step-item completed" : "step-item active";
+      document.getElementById("step-nav-3").className = isGate2 ? "step-item active" : "step-item";
+      if (currentProject.current_stage === "completed_mastering") {
+        document.getElementById("step-nav-4").className = "step-item completed";
+      }
+
+      // Render Shots
+      const container = document.getElementById("shots-container");
+      container.innerHTML = "";
+
+      currentProject.shots.forEach((shot) => {
+        const card = document.createElement("div");
+        card.className = "shot-card";
+
+        const isVideoReady = shot.status === "video_ready" || shot.status === "video_approved";
+        const hasVideo = !!shot.raw_video_path;
+
+        let previewHtml = '';
+        if (hasVideo && isVideoReady) {
+          previewHtml = `
+            <div class="shot-preview-container">
+              <div class="anamorphic-letterbox-top"></div>
+              <div class="anamorphic-letterbox-bottom"></div>
+              <video src="${API_BASE}${shot.raw_video_path}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover;"></video>
+              ${shot.title_overlay ? `<div class="preview-overlay-title">${shot.title_overlay}</div>` : ''}
+            </div>
+          `;
+        } else {
+          const imgSrc = shot.first_frame_path ? `${API_BASE}${shot.first_frame_path}` : '';
+          previewHtml = `
+            <div class="shot-preview-container">
+              <div class="anamorphic-letterbox-top"></div>
+              <div class="anamorphic-letterbox-bottom"></div>
+              ${imgSrc ? `<img src="${imgSrc}" class="shot-preview-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />` : ''}
+              <div style="display: ${imgSrc ? 'none' : 'flex'}; align-items:center; justify-content:center; width:100%; height:100%; background: linear-gradient(135deg, #09121d 0%, #162438 100%); color: #64748b; font-size: 13px;">
+                <span>Khung Hình Storyboard Tĩnh (First Frame)</span>
+              </div>
+              ${shot.title_overlay ? `<div class="preview-overlay-title">${shot.title_overlay}</div>` : ''}
+            </div>
+          `;
+        }
+
+        card.innerHTML = `
+          <div class="shot-card-header">
+            <span class="shot-id-tag">Cảnh ${shot.order}: ${shot.shot_id.toUpperCase()}</span>
+            <span class="shot-duration-tag">⏱️ ${shot.duration_seconds}s</span>
+          </div>
+
+          ${previewHtml}
+
+          <div class="shot-card-body">
+            <div class="camera-tag-cloud">
+              <span class="cam-tag">📷 ${shot.camera.focal_length}</span>
+              <span class="cam-tag">🎯 ${shot.camera.shot_size}</span>
+              <span class="cam-tag">⭕ ${shot.camera.aperture}</span>
+              <span class="cam-tag">🎥 ${shot.camera.camera_motion}</span>
+              <span class="cam-tag">✨ Hạt: ${shot.particle_preset}</span>
+            </div>
+
+            <div class="synopsis-text">${shot.visual_synopsis}</div>
+
+            ${shot.narration_text ? `<div class="narration-box">🎙️ "${shot.narration_text}"</div>` : ''}
+
+            <div class="shot-feedback-section">
+              <input type="text" class="input-feedback" id="feedback-${shot.shot_id}" placeholder="Góp ý chỉnh sửa cảnh này..." />
+              <button class="btn-regen" onclick="regenerateShot('${shot.shot_id}', ${hasVideo && isVideoReady})">
+                ${hasVideo && isVideoReady ? '🔄 Quay Lại Video' : '🔄 Tạo Lại Ảnh'}
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      // Show/Hide action bars
+      if (isGate2) {
+        document.getElementById("gate1-action-bar").style.display = "none";
+        document.getElementById("gate2-action-bar").style.display = "flex";
+      } else {
+        document.getElementById("gate1-action-bar").style.display = "flex";
+        document.getElementById("gate2-action-bar").style.display = "none";
+      }
+    }
+
+    // Regenerate Single Shot
+    async function regenerateShot(shotId, isVideo) {
+      const feedbackInput = document.getElementById(`feedback-${shotId}`);
+      const feedback = feedbackInput ? feedbackInput.value.trim() : "";
+      const modelTier = document.getElementById("model-tier-select").value;
+
+      const endpoint = isVideo 
+        ? `${API_BASE}/api/projects/${currentProject.project_id}/shots/${shotId}/regenerate-video`
+        : `${API_BASE}/api/projects/${currentProject.project_id}/shots/${shotId}/regenerate-storyboard`;
+
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ feedback, model_tier: modelTier })
+        });
+        if (!res.ok) throw new Error("Không thể tạo lại cảnh");
+        currentProject = await res.json();
+        renderProject();
+      } catch (err) {
+        alert("Lỗi: " + err.message);
+      }
+    }
+
+    // Gate 1: Approve Storyboards
+    async function approveGate1() {
+      const modelTier = document.getElementById("model-tier-select").value;
+      if (!confirm(`Bạn có chắc chắn duyệt Storyboard để sinh video bằng model ${modelTier}?`)) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/projects/${currentProject.project_id}/approve-storyboards`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ model_tier: modelTier })
+        });
+        if (!res.ok) throw new Error("Lỗi duyệt Storyboard");
+        currentProject = await res.json();
+        renderProject();
+      } catch (err) {
+        alert("Lỗi: " + err.message);
+      }
+    }
+
+    // Gate 2: Approve Videos & Render
+    async function approveGate2AndRender() {
+      try {
+        const res = await fetch(`${API_BASE}/api/projects/${currentProject.project_id}/approve-all-and-render`, {
+          method: "POST"
+        });
+        if (!res.ok) throw new Error("Lỗi khi kết xuất phim");
+        const data = await res.json();
+        currentProject = data.project;
+        renderProject();
+
+        // Show Mastering Output
+        const masterBox = document.getElementById("mastering-result-section");
+        masterBox.style.display = "block";
+        const m = data.mastering;
+        document.getElementById("mastering-output").innerHTML = `
+          <div><b>1. File Cấu Hình Phân Cảnh (Remotion Manifest):</b></div>
+          <div style="color: #cbd5e1; margin-bottom: 12px;">${m.manifest_path}</div>
+
+          <div><b>2. Lệnh Render Remotion (DCI 2K 2048x1080 @ 24fps):</b></div>
+          <div style="color: #a7f3d0; margin-bottom: 12px; background: #0c121e; padding: 8px; border-radius: 6px;">${m.remotion_command}</div>
+
+          <div><b>3. Lệnh Nén Tăng Tốc Phần Cứng FFmpeg NVIDIA NVENC (Kodak 2383 3D LUT):</b></div>
+          <div style="color: #fed7aa; margin-bottom: 12px; background: #0c121e; padding: 8px; border-radius: 6px;">${m.ffmpeg_nvenc_command}</div>
+
+          <div><b>4. File Xuất Phim Hoàn Thiện Chuẩn Rạp:</b></div>
+          <div style="color: var(--accent-gold); font-size: 15px; font-weight: bold;">${m.output_path}</div>
+        `;
+        masterBox.scrollIntoView({ behavior: "smooth" });
+      } catch (err) {
+        alert("Lỗi: " + err.message);
+      }
+    }
+  </script>
+</body>
+</html>
