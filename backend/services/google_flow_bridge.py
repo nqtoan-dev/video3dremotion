@@ -1,8 +1,29 @@
 import os
 import pathlib
 import shutil
+import struct
 import subprocess
+import zlib
 from backend.models import ShotItem
+
+def _create_mock_png(out_file: pathlib.Path, shot_id: str, w: int = 480, h: int = 270) -> None:
+    def chunk(tag: bytes, data: bytes) -> bytes:
+        return struct.pack('>I', len(data)) + tag + data + struct.pack('>I', zlib.crc32(tag + data) & 0xffffffff)
+
+    header = b'\x89PNG\r\n\x1a\n'
+    ihdr = chunk(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 2, 0, 0, 0))
+    raw = bytearray()
+    seed = sum(ord(c) for c in shot_id) % 25
+    for y in range(h):
+        raw.append(0)
+        for x in range(w):
+            r = int(10 + seed + 22 * (x / w))
+            g = int(24 + 18 * (1.0 - y / h))
+            b = int(45 + 50 * (y / h))
+            raw.extend([min(255, r), min(255, g), min(255, b)])
+    idat = chunk(b'IDAT', zlib.compress(bytes(raw)))
+    iend = chunk(b'IEND', b'')
+    out_file.write_bytes(header + ihdr + idat + iend)
 
 ASSETS_DIR = pathlib.Path("./renderer/public/assets")
 ASSETS_DIR.mkdir(parents=True, exist_ok=True)
@@ -47,7 +68,7 @@ class GoogleFlowBridge:
             full_prompt += f", director revision: {shot.user_feedback}"
 
         if GoogleFlowBridge.is_simulation_mode():
-            out_file.write_text(f"SIMULATED_FRAME: {full_prompt}", encoding="utf-8")
+            _create_mock_png(out_file, shot.shot_id)
             return f"/assets/{project_id}/frames/{shot.shot_id}_first_frame.png"
 
         cmd = [

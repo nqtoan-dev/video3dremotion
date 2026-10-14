@@ -12,8 +12,13 @@ from backend.models import (
 )
 from backend.agents.director_graph import CinematicDirectorAgent
 from backend.services.google_flow_bridge import GoogleFlowBridge
+from dotenv import load_dotenv
+from fastapi.staticfiles import StaticFiles
+
 from backend.services.remotion_runner import RemotionRunner
 from backend.services.shot_cache import ShotCacheManager
+
+load_dotenv()
 
 app = FastAPI(
     title="video3dremotion — High-Speed DCI 2K Cinema Studio",
@@ -30,6 +35,10 @@ app.add_middleware(
 
 PROJECTS_DB: Dict[str, CinemaProject] = {}
 STUDIO_HTML_PATH = pathlib.Path("./studio_ui/video3dremotion_studio.html")
+
+ASSETS_DIR = pathlib.Path("./renderer/public/assets")
+ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/assets", StaticFiles(directory=str(ASSETS_DIR)), name="assets")
 
 
 @app.get("/", response_class=HTMLResponse)
