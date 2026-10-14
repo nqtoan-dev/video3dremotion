@@ -11,18 +11,19 @@ from backend.models import (
     ShotStatus,
 )
 from backend.agents.director_graph import CinematicDirectorAgent
-from backend.services.google_flow_bridge import GoogleFlowBridge
+from backend.services.antigravity_bridge import AntigravityBridge
 from dotenv import load_dotenv
 from fastapi.staticfiles import StaticFiles
 
+from backend.services.google_flow_bridge import GoogleFlowBridge
 from backend.services.remotion_runner import RemotionRunner
 from backend.services.shot_cache import ShotCacheManager
 
 load_dotenv()
 
 app = FastAPI(
-    title="video3dremotion — High-Speed DCI 2K Cinema Studio",
-    version="3.0.0",
+    title="video3dremotion — Antigravity AI Core & DCI 2K Cinema Studio",
+    version="5.0.0",
 )
 
 app.add_middleware(
@@ -52,11 +53,22 @@ def serve_studio_ui():
 def health_check():
     return {
         "status": "ok",
-        "version": "3.0.0",
+        "version": "5.0.0",
+        "ai_core": AntigravityBridge.check_status(),
         "hardware_profile": "Dell Precision 7530 (Xeon E-2176M + 32GB RAM + Quadro P2000 4GB)",
         "cinema_standard": "DCI 2K (2048x1080 @ 24fps, CinemaScope 2.39:1)",
         "flow_credits": GoogleFlowBridge.check_credits(),
     }
+
+
+@app.get("/api/antigravity/status")
+def antigravity_status():
+    return AntigravityBridge.check_status()
+
+
+@app.post("/api/antigravity/login")
+def antigravity_login():
+    return AntigravityBridge.launch_interactive_login()
 
 
 @app.post("/api/projects", response_model=CinemaProject)
