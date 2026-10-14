@@ -1,0 +1,29 @@
+{
+  "name": "video3dremotion-renderer",
+  "version": "1.0.0",
+  "description": "DCI 2K (2048x1080 @ 24fps) 3D Remotion + Three.js + Postprocessing Cinema Renderer",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render:dci2k": "remotion render src/index.ts Video3DRemotionCinema ../out/remotion_raw_2048x1080.mp4 --concurrency=3 --gl=angle"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.114.0",
+    "@react-three/fiber": "^8.17.10",
+    "@react-three/postprocessing": "^2.16.3",
+    "@remotion/cli": "^4.0.240",
+    "@remotion/motion-blur": "^4.0.240",
+    "@remotion/player": "^4.0.240",
+    "@remotion/three": "^4.0.240",
+    "postprocessing": "^6.36.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.240",
+    "three": "^0.169.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.11",
+    "@types/three": "^0.169.0",
+    "typescript": "^5.6.3"
+  }
+}

@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Build & Render Outputs
+out/
+dist/
+build/
+workspace_assets/
+renderer/public/assets/
+*.mp4
+*.mov
+*.wav
+
+# Environment & Secrets
+.env
+.env.local
+.DS_Store
+Thumbs.db
